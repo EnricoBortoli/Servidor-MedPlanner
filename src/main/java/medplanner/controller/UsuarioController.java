@@ -20,11 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import medplanner.model.Usuario;
 import medplanner.repository.UsuarioRepository;
+import medplanner.services.TokenService;
 
 @RestController
 @RequestMapping("Usuario")
 public class UsuarioController {
     
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private TokenService tokenService;
+
     @Autowired
     private UsuarioRepository UsuarioRepository;
 
@@ -73,6 +81,26 @@ public class UsuarioController {
             return ResponseEntity.ok("Usuario deletado com sucesso");
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity login(@RequestBody Usuario usuario){
+        try {
+            var usernamePassword = new UsernamePasswordAuthenticationToken(usuario.getUsername(), usuario.getPassword());
+            var auth = this.authenticationManager.authenticate(usernamePassword);
+
+            Usuario usuarioAutenticado = (Usuario) auth.getPrincipal();
+
+            var token = tokenService.generateToken(usuarioAutenticado);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("usuario", usuarioAutenticado.getNome());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

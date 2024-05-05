@@ -9,7 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import medplanner.model.Usuario;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long>  {
-        @Query(value = "SELECT * FROM Usuario p WHERE CAST(p.id_Usuario AS char) LIKE ?1%", nativeQuery = true)
+    
+    @Query(value = "SELECT * FROM Usuario p WHERE CAST(p.id_Usuario AS char) LIKE ?1%", nativeQuery = true)
     List<Usuario> findAllByIdUsuario(String id);
 
     @Query(value = "SELECT * FROM Usuario p WHERE p.nome LIKE ?1%", nativeQuery = true)
