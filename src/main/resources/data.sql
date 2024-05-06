@@ -1,3 +1,5 @@
 
 --Inclusão de um usuario administrador padrão
-insert into usuario (nome, username, cpf, password, situacao) value ('Administrador do sistema', 'ADMIN', '11122233344', 'abc.123', 'A');
+
+insert into medplanner.usuario (nome, cpf, username, password, situacao) values 
+    ("Administrador do sistema", "11122233344", "admin", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", "A");
