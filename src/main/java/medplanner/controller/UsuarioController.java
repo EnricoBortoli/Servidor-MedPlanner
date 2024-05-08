@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,14 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Usuario;
 import medplanner.repository.UsuarioRepository;
 import medplanner.services.TokenService;
 
 @RestController
-@RequestMapping("Usuario")
+@RequestMapping("usuario")
 public class UsuarioController {
-    
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -34,60 +35,63 @@ public class UsuarioController {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepository UsuarioRepository;
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private CustomExceptionHandler customExceptionHandler;
 
     @RequestMapping("/listar")
-    public List<Usuario> listarUsuario(){
-        return UsuarioRepository.findAll();
+    public List<Usuario> listarUsuario() {
+        return usuarioRepository.findAll();
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity buscarUsuario(@RequestParam Map<String, String> parametros){
-        if(parametros.isEmpty()){
-            //TODO alterar os endPoints de buscar com parametro vazio para trazer um findAll em vez de mensagem de aviso.
-            return ResponseEntity.badRequest().body("Parâmetro de pesquisa inválidos");
+    public ResponseEntity buscarUsuario(@RequestParam Map<String, String> parametros) {
+        if (parametros.isEmpty()) {
+            return ResponseEntity.ok().body(usuarioRepository.findAll());
         }
-        if(parametros.get("id") != null){
-            return ResponseEntity.ok().body(UsuarioRepository.findAllByIdUsuario(parametros.get("id")));
+        if (parametros.get("id") != null) {
+            return ResponseEntity.ok().body(usuarioRepository.findAllByIdUsuario(parametros.get("id")));
         }
-        if(parametros.get("nome") != null){
-            return ResponseEntity.ok().body(UsuarioRepository.findAllByNomeUsuario((parametros.get("nome"))));
+        if (parametros.get("nome") != null) {
+            return ResponseEntity.ok().body(usuarioRepository.findAllByNomeUsuario((parametros.get("nome"))));
         }
         return ResponseEntity.badRequest().body("Parâmetro de pesquisa inválidos");
     }
 
     @PostMapping("/salvar")
-    public ResponseEntity salvarUsuario(@RequestBody Usuario Usuario) {
-        try{
-            if(UsuarioRepository.findByUsername(Usuario.getUsername()) != null){
-                return ResponseEntity.badRequest().build();
+    public ResponseEntity salvarUsuario(@RequestBody Usuario usuario) {
+        try {
+            if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
+                throw new DataIntegrityViolationException("Usuário já existe.");
             }
 
-            String passwordCriptografada = new BCryptPasswordEncoder().encode(Usuario.getPassword());
-            Usuario.setPassword(passwordCriptografada);
-            UsuarioRepository.save(Usuario);
+            String passwordCriptografada = new BCryptPasswordEncoder().encode(usuario.getPassword());
+            usuario.setPassword(passwordCriptografada);
+            usuarioRepository.save(usuario);
             return ResponseEntity.ok().build();
-        } catch(Exception e){
-            return ResponseEntity.badRequest().body("Erro ao criar usuário: " + e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            return customExceptionHandler.handleDataIntegrityExceptions(e);
         }
     }
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarUsuario(@PathVariable Long id) {
-        Usuario Usuario = UsuarioRepository.findById(id).orElse(null);
-        
-        if (Usuario != null) {
-            UsuarioRepository.delete(Usuario);
-            return ResponseEntity.ok("Usuario deletado com sucesso");
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario != null) {
+            usuarioRepository.delete(usuario);
+            return ResponseEntity.ok("Usuário deletado com sucesso");
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody Usuario usuario){
+    public ResponseEntity login(@RequestBody Usuario usuario) {
         try {
-            var usernamePassword = new UsernamePasswordAuthenticationToken(usuario.getUsername(), usuario.getPassword());
+            var usernamePassword = new UsernamePasswordAuthenticationToken(usuario.getUsername(),
+                    usuario.getPassword());
             var auth = this.authenticationManager.authenticate(usernamePassword);
 
             Usuario usuarioAutenticado = (Usuario) auth.getPrincipal();
@@ -103,6 +107,4 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-
 }
