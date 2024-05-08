@@ -22,7 +22,7 @@ import medplanner.model.Usuario;
 import medplanner.repository.UsuarioRepository;
 
 @RestController
-@RequestMapping("Usuario")
+@RequestMapping("usuario")
 public class UsuarioController {
     
     @Autowired
