@@ -45,9 +45,9 @@ Estes termos e condições são regidos e interpretados de acordo com as leis do
 
 # POLÍTICA DE PRIVACIDADE
 
-A sua privacidade é importante para nós. É política do MedPlanner respeitar a sua privacidade em relação a qualquer informação sua que possamos coletar no site MedPlanner. 
+Esta Política de Privacidade se refere aos dados pessoais que a MedPlanner poderá obter quando seus usuários utilizam dos serviços prestados durante a navegação dentro de nosso ambiente virtual. Nesta Política de Privacidade, será descrita de que forma serão coletados e armazenados dados a respeito dos usuários, assim como a forma pela qual tais dados poderão ser utilizados e armazenados nos termos da Lei 12.965/2014(“Marco Civil da Internet”), do Decreto 8.771/2016 e da Lei 13.709/2018 (Lei Geral de Proteção de Dados). 
 
-Solicitamos informações pessoais apenas quando realmente precisamos delas para lhe fornecer um serviço. Fazemo-lo por meios justos e legais, com o seu conhecimento e consentimento. Também informamos por que estamos coletando e como será usado. 
+Solicitamos informações pessoais apenas quando for realizado o seu cadastro. Os dados solicitados são nome, e-mail, CPF, função, e caso seja médico solicitamos especialidade, CRM e estado.  Fazemo-lo por meios justos e legais, com o seu conhecimento e consentimento.  
 
 Apenas retemos as informações coletadas pelo tempo necessário para fornecer o serviço solicitado. Quando armazenamos dados, protegemos dentro de meios comercialmente aceitáveis para evitar perdas e roubos, bem como acesso, divulgação, cópia, uso ou modificação não autorizados. 
 
@@ -69,7 +69,7 @@ C) Não causar danos aos sistemas físicos (hardwares) e lógicos (softwares) do
 
 ## Mais informações 
 
-Esperemos que esteja esclarecido e, como mencionado anteriormente, se houver algo que você não tem certeza se precisa ou não, geralmente é mais seguro deixar os cookies ativados, caso interaja com um dos recursos que você usa em nosso site. 
+Ao aceitar a presente Política de Privacidade é declarado que todo seu conteúdo foi devidamente lido e aceito, tendo assim todas as cláusulas devidamente validadas pelo usuário para que atuem em pleno vigo. 
 
 Esta política é efetiva a partir *****.
  
