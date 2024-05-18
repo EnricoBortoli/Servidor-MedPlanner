@@ -1,9 +1,12 @@
 package medplanner.validation;
 
 import medplanner.validation.annotations.CPF;
+import org.springframework.stereotype.Component;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+@Component
 public class CPFValidator implements ConstraintValidator<CPF, String> {
 
     @Override

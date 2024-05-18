@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Usuario;
 import medplanner.repository.UsuarioRepository;
 import medplanner.services.TokenService;
+import medplanner.validation.CPFValidator;
 
 @RestController
 @RequestMapping("usuario")
@@ -39,6 +41,9 @@ public class UsuarioController {
 
     @Autowired
     private CustomExceptionHandler customExceptionHandler;
+
+    @Autowired
+    private CPFValidator cpfValidator;
 
     @RequestMapping("/listar")
     public List<Usuario> listarUsuario() {
@@ -60,7 +65,12 @@ public class UsuarioController {
     }
 
     @PostMapping("/salvar")
-    public ResponseEntity salvarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> salvarUsuario(@RequestBody @Valid Usuario usuario) {
+        // Validar CPF
+        if (!cpfValidator.isValid(usuario.getCpf(), null)) {
+            return customExceptionHandler.handleCPFInvalido();
+        }
+
         try {
             if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
                 throw new DataIntegrityViolationException("Usuário já existe.");

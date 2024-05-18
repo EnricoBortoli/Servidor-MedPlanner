@@ -1,24 +1,22 @@
 package medplanner.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-
-@ControllerAdvice
+@Component
 public class CustomExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -47,14 +45,18 @@ public class CustomExceptionHandler {
         return buildResponseEntity(campo, HttpStatus.BAD_REQUEST);
     }
 
-    private ResponseEntity<String> buildResponseEntity(String message, HttpStatus status) {
-        HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<>(message, headers, status);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CPFInvalidoException.class)
+    public ResponseEntity<String> handleCPFInvalido() {
+        return buildResponseEntity("CPF inválido", HttpStatus.BAD_REQUEST);
     }
 
-    private ResponseEntity<Map<String, List<String>>> buildResponseEntity(Map<String, List<String>> body, HttpStatus status) {
-        HttpHeaders headers = new HttpHeaders();
-        return new ResponseEntity<>(body, headers, status);
+    private ResponseEntity<Map<String, List<String>>> buildResponseEntity(Map<String, List<String>> errors, HttpStatus status) {
+        return new ResponseEntity<>(errors, status);
+    }
+
+    private ResponseEntity<String> buildResponseEntity(String message, HttpStatus status) {
+        return new ResponseEntity<>(message, status);
     }
 
     private Map<String, List<String>> getErrorsMap(List<String> errors) {
