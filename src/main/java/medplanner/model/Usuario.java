@@ -1,6 +1,5 @@
 package medplanner.model;
 
-
 import java.util.Collection;
 import java.util.List;
 
@@ -15,9 +14,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -62,6 +61,7 @@ public class Usuario implements UserDetails{
     private String situacao;
 
     @Column()
+    @Email(message = "Email inválido")
     @Size(max = 50, message = "O nome de usuário deve ter no máximo 50 caracteres")
     private String username;
 
