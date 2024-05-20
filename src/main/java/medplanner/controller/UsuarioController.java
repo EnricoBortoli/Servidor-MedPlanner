@@ -1,8 +1,11 @@
 package medplanner.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Usuario;
@@ -45,6 +52,9 @@ public class UsuarioController {
     @Autowired
     private CPFValidator cpfValidator;
 
+    @Autowired
+    private LocalValidatorFactoryBean validator;
+
     @RequestMapping("/listar")
     public List<Usuario> listarUsuario() {
         return usuarioRepository.findAll();
@@ -65,17 +75,36 @@ public class UsuarioController {
     }
 
     @PostMapping("/salvar")
-    public ResponseEntity<?> salvarUsuario(@RequestBody @Valid Usuario usuario) {
+    public ResponseEntity<?> salvarUsuario(@RequestBody @Valid Usuario usuario, BindingResult result) {
+    List<String> errors = new ArrayList<>();
+
+        if (result.hasErrors()) {
+        errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
+    }
+        
         // Validar CPF
         if (!cpfValidator.isValid(usuario.getCpf(), null)) {
-            return customExceptionHandler.handleCPFInvalido();
+            errors.add("CPF inválido");
         }
-
+    
+        // Verificar se o usuário já existe
+        if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
+            errors.add("Usuário já existe.");
+        }
+    
+        // Verificar se o CPF já existe
+        if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
+            errors.add("CPF já existe.");
+        }
+    
+        // Se houver erros, retornar a lista de erros
+        if (!errors.isEmpty()) {
+            Map<String, List<String>> errorResponse = new HashMap<>();
+            errorResponse.put("errors", errors);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    
         try {
-            if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
-                throw new DataIntegrityViolationException("Usuário já existe.");
-            }
-
             String passwordCriptografada = new BCryptPasswordEncoder().encode(usuario.getPassword());
             usuario.setPassword(passwordCriptografada);
             usuarioRepository.save(usuario);
@@ -84,6 +113,7 @@ public class UsuarioController {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
         }
     }
+
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarUsuario(@PathVariable Long id) {

@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,6 +40,14 @@ public class Usuario implements UserDetails{
     private Long idUsuario;
 
     @Column()
+    @Email(message = "Email inválido")
+    @Size(max = 50, message = "O nome de usuário deve ter no máximo 50 caracteres")
+    private String username;
+
+    @Column()
+    private String password;
+
+    @Column()
     @Nonnull()
     @NotEmpty(message = "O nome é obrigatório")
     @Size(min = 2, message = "O nome precisa ter mais de 2 caracteres")
@@ -50,6 +60,10 @@ public class Usuario implements UserDetails{
     @Size(min = 11, max = 11, message = "O CPF deve ter exatamente 11 caracteres")
     private String cpf;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Cargo cargo;
+
     /**
      * A - Ativo
      * I - Inativo
@@ -60,22 +74,10 @@ public class Usuario implements UserDetails{
     @Size(max = 1, message = "A situação deve ter no máximo 1 caractere")
     private String situacao;
 
-    @Column()
-    @Email(message = "Email inválido")
-    @Size(max = 50, message = "O nome de usuário deve ter no máximo 50 caracteres")
-    private String username;
-
-    @Column()
-    private String password;
-
-    @Override
-    /*
-     * Esse método retorna os perfis que o usuário possui.
-     * Idealmente, a classe Usuario deveria ter um atributo do tipo Perfil (ENUM), onde seriam descritos os possíveis perfis que um usuário pode possuir.
-     * Como esse projeto é simples, e não possui controle de acesso por endpoint, todos os usuários terão acesso de ROLE_ADMIN (perfil padrão do Spring Security)
-     */
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    public enum Cargo {
+        ADMINISTRADOR,
+        RECEPCAO,
+        MEDICO
     }
 
     @Override
@@ -118,5 +120,10 @@ public class Usuario implements UserDetails{
      */
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(cargo.name()));
     }
 }
