@@ -1,10 +1,10 @@
 package medplanner.controller;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,11 +29,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Usuario;
 import medplanner.repository.UsuarioRepository;
+import medplanner.services.EmailService;
 import medplanner.services.TokenService;
 import medplanner.validation.CPFValidator;
 
@@ -58,7 +57,9 @@ public class UsuarioController {
     private CPFValidator cpfValidator;
 
     @Autowired
-    private LocalValidatorFactoryBean validator;
+    private EmailService emailService;
+
+    private static final String CARACTERES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:?";
 
     @RequestMapping("/listar")
     public List<Usuario> listarUsuario() {
@@ -81,11 +82,11 @@ public class UsuarioController {
 
     @PostMapping("/salvar")
     public ResponseEntity<?> salvarUsuario(@RequestBody @Valid Usuario usuario, BindingResult result) {
-    List<String> errors = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
 
         if (result.hasErrors()) {
         errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
-    }
+        }
         
         if (!cpfValidator.isValid(usuario.getCpf(), null)) {
             errors.add("CPF inválido");
@@ -98,17 +99,23 @@ public class UsuarioController {
         if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
             errors.add("CPF já existe.");
         }
-    
+
+        if(usuario.getSituacao().equals("E")/*  && usuario.getPassword() == null*/){
+            usuario.setPassword(gerarSenha());
+            sendPasswordEmail(usuario.getUsername(), usuario.getNome(), usuario.getPassword());
+            //TODO fazer uma validação para usuario 'Em Validação' mas que venha com senha.
+        } 
+            
         if (!errors.isEmpty()) {
             Map<String, List<String>> errorResponse = new HashMap<>();
             errorResponse.put("errors", errors);
             return ResponseEntity.badRequest().body(errorResponse);
         }
-    
+   
         try {
             String passwordCriptografada = new BCryptPasswordEncoder().encode(usuario.getPassword());
             usuario.setPassword(passwordCriptografada);
-            usuarioRepository.save(usuario);
+            usuarioRepository.save(usuario);  
             return ResponseEntity.ok().build();
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
@@ -117,42 +124,59 @@ public class UsuarioController {
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarUsuario(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-    if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
-    }
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
+        }
 
-    Usuario usuario = usuarioRepository.findById(id).orElse(null);
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
 
-    if (usuario != null) {
-        usuarioRepository.delete(usuario);
-        return ResponseEntity.ok("Usuário deletado com sucesso");
-    } else {
-        return ResponseEntity.notFound().build();
+        if (usuario != null) {
+            usuarioRepository.delete(usuario);
+            return ResponseEntity.ok("Usuário deletado com sucesso");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody Usuario usuario) {
-    if (StringUtils.isEmpty(usuario.getUsername()) || StringUtils.isEmpty(usuario.getPassword())) {
-        return ResponseEntity.badRequest().body("Nome de usuário e senha são obrigatórios.");
+        if (StringUtils.isEmpty(usuario.getUsername()) || StringUtils.isEmpty(usuario.getPassword())) {
+            return ResponseEntity.badRequest().body("Nome de usuário e senha são obrigatórios.");
+        }
+
+        try {
+            var usernamePassword = new UsernamePasswordAuthenticationToken(usuario.getUsername(),
+                    usuario.getPassword());
+            var auth = this.authenticationManager.authenticate(usernamePassword);
+
+            Usuario usuarioAutenticado = (Usuario) auth.getPrincipal();
+
+            var token = tokenService.generateToken(usuarioAutenticado);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("usuario", usuarioAutenticado.getNome());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    try {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(usuario.getUsername(),
-                usuario.getPassword());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
+    public static String gerarSenha() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder senha = new StringBuilder(8);
 
-        Usuario usuarioAutenticado = (Usuario) auth.getPrincipal();
-
-        var token = tokenService.generateToken(usuarioAutenticado);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        response.put("usuario", usuarioAutenticado.getNome());
-
-        return ResponseEntity.ok(response);
-    } catch (Exception e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        for (int i = 0; i < 8; i++) {
+            int index = random.nextInt(CARACTERES.length());
+            senha.append(CARACTERES.charAt(index));
+        }
+        return senha.toString();
     }
-}
+
+    private void sendPasswordEmail(String email, String name, String password) {
+        String subject = "Sua nova senha";
+        String body = "Olá " + name + ",\n\nSua nova senha é: " + password;
+        emailService.sendEmail(email, subject, body);
+    }
 }
