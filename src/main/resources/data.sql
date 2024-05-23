@@ -1,4 +1,17 @@
 
+-- Inclusão de especialidades médicas no banco de dados
+INSERT INTO medplanner.especialidade (nome, sigla) VALUES 
+    ("Cardiologia", "CD"),
+    ("Neurologia", "NR"),
+    ("Pediatria", "PD"),
+    ("Dermatologia", "DT"),
+    ("Ginecologia", "GN"),
+    ("Ortopedia", "OR"),
+    ("Psiquiatria", "PS"),
+    ("Oftalmologia", "OF"),
+    ("Endocrinologia", "EN"),
+    ("Urologia", "UR");
+
 --Inclusão de um usuario administrador padrão
 
 insert into medplanner.usuario (nome, cpf, username, password, situacao) values 
