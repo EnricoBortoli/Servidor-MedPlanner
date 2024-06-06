@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import medplanner.model.Profissional;
+import medplanner.model.Usuario;
 
 public interface ProfissionalRepository extends JpaRepository<Profissional, Long> {
 
@@ -21,5 +22,8 @@ public interface ProfissionalRepository extends JpaRepository<Profissional, Long
 
     @Query("SELECT p FROM Profissional p WHERE p.especialidade.sigla = ?1")
     List<Profissional> findByEspecialidadeSigla(String especialidadeSigla);
+
+    @Query("SELECT p FROM Profissional p WHERE p.numCrm = ?1")
+    Profissional findByCRM(String numCrm);
 
 }

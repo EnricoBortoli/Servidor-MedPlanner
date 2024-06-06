@@ -28,9 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Profissional;
+import medplanner.model.Usuario;
 import medplanner.repository.ProfissionalRepository;
+import medplanner.repository.UsuarioRepository;
 import medplanner.services.EmailService;
 import medplanner.services.TokenService;
+import medplanner.validation.CPFValidator;
 
 @RestController
 @RequestMapping("profissional")
@@ -50,6 +53,12 @@ public class ProfissionalController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private CPFValidator cpfValidator;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping("/listar")
     public List<Profissional> listarProfissionais() {
@@ -80,12 +89,34 @@ public class ProfissionalController {
     @PostMapping("/salvar")
     public ResponseEntity<?> salvarProfissional(@RequestBody @Valid Profissional profissional, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+
+        Usuario usuario = profissional;
+
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Apenas usuários com cargo de ADMINISTRADOR podem salvar profissionais.");
         }
-
         List<String> errors = new ArrayList<>();
+
+        if (!cpfValidator.isValid(usuario.getCpf(), null)) {
+            errors.add("CPF inválido");
+        }
+
+        if (usuario.getIdUsuario() == null) {
+
+            if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
+                errors.add("Usuário já existe.");
+            }
+
+            if (profissionalRepository.findByCRM(profissional.getNumCrm()) != null) {
+                errors.add("CRM já existe.");
+            }
+
+            if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
+                errors.add("CPF já existe.");
+            }
+
+        }
 
         if (result.hasErrors()) {
             errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -111,7 +142,7 @@ public class ProfissionalController {
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarProfissional(@PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Apenas usuários com cargo de ADMINISTRADOR podem excluir profissionais.");
         }
