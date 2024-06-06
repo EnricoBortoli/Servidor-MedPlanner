@@ -24,7 +24,7 @@ INSERT INTO medplanner.usuario (nome, cpf, username, password, cargo, situacao) 
 
 -- Inserção de dados na tabela profissional
 -- Assumindo que os IDs de especialidade são conhecidos e correspondentes
-INSERT INTO medplanner.profissional (usuario_id, num_Crm, uf_Crm, id_especialidade) VALUES
+INSERT INTO medplanner.profissional (id_usuario, num_Crm, uf_Crm, id_especialidade) VALUES
     (2, "12345", "SP", 1), -- João Silva, Cardiologia
     (3, "67890", "RJ", 2), -- Maria Oliveira, Neurologia
     (4, "54321", "MG", 6); -- Carlos Pereira, Ortopedia

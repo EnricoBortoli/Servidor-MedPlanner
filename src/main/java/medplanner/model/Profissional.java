@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@PrimaryKeyJoinColumn(name = "usuario_id")
+@PrimaryKeyJoinColumn(name = "id_usuario")
 public class Profissional extends Usuario {
 
     @Column

@@ -10,7 +10,7 @@ import medplanner.model.Usuario;
 
 public interface ProfissionalRepository extends JpaRepository<Profissional, Long> {
 
-    @Query(value = "SELECT * FROM Profissional p WHERE CAST(p.usuario_id AS char) LIKE ?1%", nativeQuery = true)
+    @Query("SELECT * FROM Profissional p WHERE CAST(p.id_usuario AS char) LIKE ?1%")
     List<Profissional> findAllByIdProfissional(String id);
 
     List<Profissional> findByNumCrmStartingWith(String numCrm);
