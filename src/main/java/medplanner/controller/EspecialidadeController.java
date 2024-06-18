@@ -72,12 +72,14 @@ public class EspecialidadeController {
                     result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
         }
 
-        if (especialidadeRepository.findByNomeStartingWith(especialidade.getNome()).size() > 0) {
-            errors.add("Nome já existe.");
-        }
+        if (especialidade.getIdEspecialidade() == null) {
+            if (especialidadeRepository.findByNomeStartingWith(especialidade.getNome()).size() > 0) {
+                errors.add("Nome já existe.");
+            }
 
-        if (especialidadeRepository.findBySiglaStartingWith(especialidade.getSigla()).size() > 0) {
-            errors.add("Sigla já existe.");
+            if (especialidadeRepository.findBySiglaStartingWith(especialidade.getSigla()).size() > 0) {
+                errors.add("Sigla já existe.");
+            }
         }
 
         if (!errors.isEmpty()) {
