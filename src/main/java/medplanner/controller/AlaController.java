@@ -1,47 +1,80 @@
 package medplanner.controller;
 
 
-import medplanner.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import medplanner.model.Ala;
-import medplanner.services.AlaService;
+import medplanner.repository.AlaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("ala")
 public class AlaController {
 
     @Autowired
-    private AlaService alaService;
+    private AlaRepository alaRepository;
 
-    @PostMapping
-    public Ala createAla(@RequestBody Ala ala) {
-        return alaService.createAla(ala);
+    @PostMapping("/criar")
+    public ResponseEntity<?> criarAla(@RequestBody @Valid Ala ala, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+        Ala savedAla = alaRepository.save(ala);
+        return ResponseEntity.ok(savedAla);
     }
 
-    @GetMapping
-    public List<Ala> getAllAlas() {
-        return alaService.getAllAlas();
+    @GetMapping("/listar")
+    public List<Ala> listarAlas() {
+        return alaRepository.findAll();
+    }
+    @GetMapping("/buscar")
+    public ResponseEntity<Ala>buscarAlaById(@PathVariable Long idAla) {
+        Optional<Ala> ala = alaRepository.findById(idAla);
+        if (ala.isPresent()) {
+            return ResponseEntity.ok(ala.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @PutMapping("/salvar")
+    public ResponseEntity<?> salvarAla(@PathVariable Long idAla, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        Optional<Ala> ala = alaRepository.findById(idAla);
+        if (ala.isPresent()) {
+            Ala alaToUpdate = ala.get();
+            alaToUpdate.setNome(alaDetails.getNome());
+            alaToUpdate.setSigla(alaDetails.getSigla());
+            alaToUpdate.setAndar(alaDetails.getAndar());
+            Ala updatedAla = alaRepository.save(alaToUpdate);
+            return ResponseEntity.ok(updatedAla);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Ala> getAlaById(@PathVariable Long id) {
-        Ala ala = alaService.getAlaById(id).orElseThrow(() -> new ResourceNotFoundException("Ala não encontrada pelo id: " + id));
-        return ResponseEntity.ok().body(ala);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Ala> updateAla(@PathVariable Long id, @RequestBody Ala alaDetails) {
-        Ala updatedAla = alaService.updateAla(id, alaDetails);
-        return ResponseEntity.ok(updatedAla);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAla(@PathVariable Long id) {
-        alaService.deleteAla(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deleteAla(@PathVariable Long idAla) {
+        Optional<Ala> ala = alaRepository.findById(idAla);
+        if (ala.isPresent()) {
+            alaRepository.delete(ala.get());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
