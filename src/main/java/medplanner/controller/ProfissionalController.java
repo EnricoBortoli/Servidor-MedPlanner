@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,8 @@ public class ProfissionalController {
             return ResponseEntity.ok().body(profissionalRepository.findAll());
         }
         if (parametros.containsKey("id")) {
-            List<Profissional> profissionais = profissionalRepository.findAllByIdProfissional(parametros.get("id"));
+            Optional<Profissional> profissionais = profissionalRepository
+                    .findById(Long.parseLong(parametros.get("id")));
             return ResponseEntity.ok().body(profissionais);
         }
         if (parametros.containsKey("numCrm")) {
