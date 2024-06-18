@@ -36,6 +36,7 @@ public class AlaController {
     public List<Ala> listarAlas() {
         return alaRepository.findAll();
     }
+
     @GetMapping("/buscar")
     public ResponseEntity<Ala>buscarAlaById(@PathVariable Long idAla) {
         Optional<Ala> ala = alaRepository.findById(idAla);
@@ -45,6 +46,7 @@ public class AlaController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @PutMapping("/salvar")
     public ResponseEntity<?> salvarAla(@PathVariable Long idAla, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
