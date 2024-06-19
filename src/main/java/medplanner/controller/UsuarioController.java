@@ -85,37 +85,38 @@ public class UsuarioController {
         List<String> errors = new ArrayList<>();
 
         if (result.hasErrors()) {
-        errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
+            errors.addAll(
+                    result.getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList()));
         }
-        
+
         if (!cpfValidator.isValid(usuario.getCpf(), null)) {
             errors.add("CPF inválido");
         }
-    
+
         if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
             errors.add("Usuário já existe.");
         }
-    
-        if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
-            errors.add("CPF já existe.");
-        }
 
-        if(usuario.getSituacao().equals("E")/*  && usuario.getPassword() == null*/){
+        // if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
+        // errors.add("CPF já existe.");
+        // }
+
+        if (usuario.getSituacao().equals("E")/* && usuario.getPassword() == null */) {
             usuario.setPassword(gerarSenha());
             sendPasswordEmail(usuario.getUsername(), usuario.getNome(), usuario.getPassword());
-            //TODO fazer uma validação para usuario 'Em Validação' mas que venha com senha.
-        } 
-            
+            // TODO fazer uma validação para usuario 'Em Validação' mas que venha com senha.
+        }
+
         if (!errors.isEmpty()) {
             Map<String, List<String>> errorResponse = new HashMap<>();
             errorResponse.put("errors", errors);
             return ResponseEntity.badRequest().body(errorResponse);
         }
-   
+
         try {
             String passwordCriptografada = new BCryptPasswordEncoder().encode(usuario.getPassword());
             usuario.setPassword(passwordCriptografada);
-            usuarioRepository.save(usuario);  
+            usuarioRepository.save(usuario);
             return ResponseEntity.ok().build();
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
@@ -123,9 +124,11 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<String> deletarUsuario(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> deletarUsuario(@PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
         if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
         }
 
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
