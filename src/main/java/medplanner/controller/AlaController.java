@@ -38,8 +38,8 @@ public class AlaController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<Ala>buscarAlaById(@PathVariable Long idAla) {
-        Optional<Ala> ala = alaRepository.findById(idAla);
+    public ResponseEntity<Ala>buscarAlaById(@PathVariable Long id) {
+        Optional<Ala> ala = alaRepository.findById(id);
         if (ala.isPresent()) {
             return ResponseEntity.ok(ala.get());
         } else {
@@ -48,7 +48,7 @@ public class AlaController {
     }
 
     @PutMapping("/salvar")
-    public ResponseEntity<?> salvarAla(@PathVariable Long idAla, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
+    public ResponseEntity<?> salvarAla(@PathVariable Long id, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(error -> error.getDefaultMessage())
@@ -56,7 +56,7 @@ public class AlaController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        Optional<Ala> ala = alaRepository.findById(idAla);
+        Optional<Ala> ala = alaRepository.findById(id);
         if (ala.isPresent()) {
             Ala alaToUpdate = ala.get();
             alaToUpdate.setNome(alaDetails.getNome());
@@ -70,8 +70,8 @@ public class AlaController {
     }
 
     @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deleteAla(@PathVariable Long idAla) {
-        Optional<Ala> ala = alaRepository.findById(idAla);
+    public ResponseEntity<Void> deleteAla(@PathVariable Long id) {
+        Optional<Ala> ala = alaRepository.findById(id);
         if (ala.isPresent()) {
             alaRepository.delete(ala.get());
             return ResponseEntity.ok().build();
