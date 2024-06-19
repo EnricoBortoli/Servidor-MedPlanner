@@ -15,6 +15,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,9 +34,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of="idUsuario")
-public class Usuario implements UserDetails{
-    
+@EqualsAndHashCode(of = "idUsuario")
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Usuario implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
@@ -116,7 +119,8 @@ public class Usuario implements UserDetails{
 
     @Override
     /*
-     * Esse método retorna apenas true porque não existe validação de usuário ativo ou inativo
+     * Esse método retorna apenas true porque não existe validação de usuário ativo
+     * ou inativo
      */
     public boolean isEnabled() {
         return true;
