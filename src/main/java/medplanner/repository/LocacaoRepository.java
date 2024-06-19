@@ -8,6 +8,6 @@ import java.util.Date;
 
 @Repository
 public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
-    boolean existeDataHoraMarcadaNaSala(Date data, Date horaInicio, Date horaFinal); //, Sala sala
-    boolean existsByDataAndHoraInicioAfter(Date date);
+//    boolean existeDataHoraMarcadaNaSala(Date data, Date horaInicio, Date horaFinal); //, Sala sala
+//    boolean existsByDataAndHoraInicioAfter(Date date);
 }

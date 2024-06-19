@@ -18,7 +18,7 @@ public class Locacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idALocacao;
+    private Long idLocacao;
 
     @Column()
     @NotEmpty(message = "A hora inicial é obrigatória!")
@@ -35,19 +35,11 @@ public class Locacao {
     @Temporal(TemporalType.DATE)
     private Date data;
 
-    @Column()
     @ManyToOne
-    @NotEmpty(message = "O nome da Ala é obrigatório!")
-    @JoinColumn(name = "idAla")
-    private Ala ala;
+    @NotEmpty(message = "O nome do médico é obrigatório!")
+    @JoinColumn(name = "id_usuario")
+    private Profissional profissional;
 
-//    @Column()
-//    @ManyToOne
-//    @NotEmpty(message = "O nome do médico é obrigatório!")
-//    @JoinColumn(name = "idProfissional")
-//    private Profissional profissional;
-//
-//    @Column()
 //    @ManyToOne
 //    @NotEmpty(message = "O nome da sala é obrigatório!")
 //    @JoinColumn(name = "idSala")

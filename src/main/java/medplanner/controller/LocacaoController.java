@@ -24,15 +24,15 @@ public class LocacaoController {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
-
-        boolean exists = locacaoRepository.existeDataHoraMarcadaNaSala(
-                locacao.getData(), locacao.getHoraInicio(), locacao.getHoraFinal()
-        ); // , locacao.getSala()
+//
+//        boolean exists = locacaoRepository.existeDataHoraMarcadaNaSala(
+//                locacao.getData(), locacao.getHoraInicio(), locacao.getHoraFinal()
+//        ); // , locacao.getSala()
 
         //fazer a verificação para cada variavel para fazer a locação
-        if (exists) {
-            return ResponseEntity.badRequest().body("Locação já existe para a data, hora e sala selecionados.");
-        }
+//        if (exists) {
+//            return ResponseEntity.badRequest().body("Locação já existe para a data, hora e sala selecionados.");
+//        }
 
         Locacao savedLocacao = locacaoRepository.save(locacao);
         return ResponseEntity.ok(savedLocacao);
@@ -65,17 +65,17 @@ public class LocacaoController {
         locacao.setHoraInicio(locacaoDetails.getHoraInicio());
         locacao.setHoraFinal(locacaoDetails.getHoraFinal());
         locacao.setData(locacaoDetails.getData());
-        locacao.setAla(locacaoDetails.getAla());
+//        locacao.setAla(locacaoDetails.getAla());
 //        locacao.setProfissional(locacaoDetails.getProfissional());
 //        locacao.setSala(locacaoDetails.getSala());
 
-        boolean exists = locacaoRepository.existeDataHoraMarcadaNaSala(
-                locacao.getData(), locacao.getHoraInicio(), locacao.getHoraFinal()
-        ); // , locacao.getSala()
+//        boolean exists = locacaoRepository.existeDataHoraMarcadaNaSala(
+//                locacao.getData(), locacao.getHoraInicio(), locacao.getHoraFinal()
+//        ); // , locacao.getSala()
 
-        if (exists) {
-            return ResponseEntity.badRequest().body("Locação já existe para a data, hora e sala especificados.");
-        }
+//        if (exists) {
+//            return ResponseEntity.badRequest().body("Locação já existe para a data, hora e sala especificados.");
+//        }
 
         Locacao updatedLocacao = locacaoRepository.save(locacao);
         return ResponseEntity.ok(updatedLocacao);
@@ -88,11 +88,11 @@ public class LocacaoController {
             return ResponseEntity.notFound().build();
         }
 
-        boolean hasFutureBookings = locacaoRepository.existsByDataAndHoraInicioAfter(new Date());
+//        boolean hasFutureBookings = locacaoRepository.existsByDataAndHoraInicioAfter(new Date());
 
-        if (hasFutureBookings) {
-            return ResponseEntity.badRequest().body("Não é possível deletar a locação pois há locações futuras marcadas.");
-        }
+//        if (hasFutureBookings) {
+//            return ResponseEntity.badRequest().body("Não é possível deletar a locação pois há locações futuras marcadas.");
+//        }
 
         locacaoRepository.delete(locacao.get());
         return ResponseEntity.ok().build();
