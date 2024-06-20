@@ -59,17 +59,16 @@ public class SalaController {
      @PostMapping("/salvar")
     public ResponseEntity<?> salvarSala(@RequestBody @Valid Sala sala, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"//*"ROLE_RECEPCIONISTA" */
-        ))) {
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Apenas usuários com cargo de ADMINISTRADOR e RECEPCIONISTA podem salvar profissionais.");
         }
 
         List<String> errors = new ArrayList<>();
 
-        if (salaRepository.findByNomeSala(sala.getNomeSala()) != null) {
-            errors.add("Já existe uma sala com esse nome.");
-        }
+     //   if (salaRepository.findByNomeSala(sala.getNomeSala()).isEmpty() ) {
+     //       errors.add("Já existe uma sala com esse nome.");
+     //   }
 
         if (result.hasErrors()) {
             errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)

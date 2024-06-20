@@ -56,17 +56,16 @@ public class RecursoController {
      @PostMapping("/salvar")
     public ResponseEntity<?> salvarRecurso(@RequestBody @Valid Recurso recurso, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"//*"ROLE_RECEPCIONISTA" */
-        ))) {
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Apenas usuários com cargo de ADMINISTRADOR e RECEPCIONISTA podem salvar profissionais.");
+                    .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPCIONISTA podem salvar profissionais.");
         }
 
         List<String> errors = new ArrayList<>();
 
-        if (recursoRepository.findByNomeRecurso(recurso.getNomeRecurso()) != null) {
-            errors.add("Já existe um recurso com esse nome.");
-        }
+    //    if (recursoRepository.findByNomeRecurso(recurso.getNomeRecurso()) != null) {
+     //       errors.add("Já existe um recurso com esse nome.");
+     //   }
 
         if (result.hasErrors()) {
             errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)

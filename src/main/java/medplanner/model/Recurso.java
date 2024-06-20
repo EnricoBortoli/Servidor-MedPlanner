@@ -1,11 +1,15 @@
 package medplanner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -38,7 +42,12 @@ public class Recurso {
  
     @Column()
     @NotEmpty(message = "A descrição é obrigatória")
-    @Size(max = 1, message = "A descrição deve ter no máximo 1 caracteres")
+    @Size(max = 100, message = "A descrição deve ter no máximo 100 caracteres")
     private String descricao;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name="id_sala")
+    private Sala sala;  
     
 }
