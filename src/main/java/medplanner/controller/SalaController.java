@@ -22,12 +22,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import medplanner.exception.CustomExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Sala;
 import medplanner.repository.SalaRepository;
 
+@RestController
+@RequestMapping("sala")
 public class SalaController {
 
     @Autowired
@@ -35,13 +38,6 @@ public class SalaController {
 
     @Autowired
     private CustomExceptionHandler customExceptionHandler;
-
-    private static final String CARACTERES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:?";
-
-    @RequestMapping("/listar")
-    public List<Sala> listarSalas() {
-        return salaRepository.findAll();
-    }
 
     @GetMapping("/buscar")
     public ResponseEntity buscarUsuario(@RequestParam Map<String, String> parametros) {

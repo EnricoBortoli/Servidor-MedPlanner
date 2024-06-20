@@ -22,12 +22,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Recurso;
 import medplanner.repository.RecursoRepository;
 
+@RestController
+@RequestMapping("recurso")
 public class RecursoController {
 
      @Autowired
@@ -35,14 +38,7 @@ public class RecursoController {
 
     @Autowired
     private CustomExceptionHandler customExceptionHandler;
-
-    private static final String CARACTERES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:?";
-
-    @RequestMapping("/listar")
-    public List<Recurso> listarSalas() {
-        return recursoRepository.findAll();
-    }
-
+  
     @GetMapping("/buscar")
     public ResponseEntity buscarRecurso(@RequestParam Map<String, String> parametros) {
         if (parametros.isEmpty()) {
