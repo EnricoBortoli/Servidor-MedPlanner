@@ -25,51 +25,98 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import medplanner.dto.RecursoDTO;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Recurso;
+import medplanner.model.Sala;
 import medplanner.repository.RecursoRepository;
+import medplanner.repository.SalaRepository;
 
 @RestController
 @RequestMapping("recurso")
 public class RecursoController {
 
-     @Autowired
+    @Autowired
     private RecursoRepository recursoRepository;
 
     @Autowired
+    private SalaRepository salaRepository;
+
+    @Autowired
     private CustomExceptionHandler customExceptionHandler;
-  
+
     @GetMapping("/buscar")
-    public ResponseEntity buscarRecurso(@RequestParam Map<String, String> parametros) {
+    public ResponseEntity<?> buscarRecurso(@RequestParam Map<String, String> parametros) {
+
+        List<Recurso> recursos;
+
         if (parametros.isEmpty()) {
-            return ResponseEntity.ok().body(recursoRepository.findAll());
+            recursos = recursoRepository.findAll();
+        } else if (parametros.containsKey("idRecurso")) {
+            try {
+                Long idRecurso = Long.parseLong(parametros.get("idRecurso"));
+                recursos = recursoRepository.findAllByIdRecurso(idRecurso);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro idRecurso deve ser um número.");
+            }
+        } else if (parametros.containsKey("nomeRecurso")) {
+            String nomeRecurso = parametros.get("nomeRecurso");
+            String nomeRecursoComCuringa = "%" + nomeRecurso + "%";
+            recursos = recursoRepository.findByNomeRecurso(nomeRecursoComCuringa);
+        } else if (parametros.containsKey("idSala")) {
+            try {
+                Long idSala = Long.parseLong(parametros.get("idSala"));
+                recursos = recursoRepository.findByIdSala(idSala);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro idSala deve ser um número.");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos");
         }
-        if (parametros.get("idSala") != null) {
-            return ResponseEntity.ok().body(recursoRepository.findAllByIdRecurso(parametros.get("idRecurso")));
-        }
-        if (parametros.get("nomeRecurso") != null) {
-            return ResponseEntity.ok().body(recursoRepository.findByNomeRecurso((parametros.get("nomeRecurso"))));
-        }
-        return ResponseEntity.badRequest().body("Parâmetro de pesquisa inválidos");
+
+        List<RecursoDTO> recursoDTOs = recursos.stream().map(recurso -> new RecursoDTO(
+                recurso.getIdRecurso(),
+                recurso.getNomeRecurso(),
+                recurso.getDescricao(),
+                recurso.getSala() != null ? recurso.getSala().getIdSala() : null)).collect(Collectors.toList());
+
+        return ResponseEntity.ok(recursoDTOs);
     }
 
-     @PostMapping("/salvar")
+    @PostMapping("/salvar")
     public ResponseEntity<?> salvarRecurso(@RequestBody @Valid Recurso recurso, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
+
+        // Verificação de permissões
+        boolean hasRequiredAuthority = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ADMINISTRADOR") ||
+                        authority.getAuthority().equals("RECEPCAO"));
+
+        if (!hasRequiredAuthority) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPCIONISTA podem salvar profissionais.");
+                    .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem cadastrar/editar novos recursos.");
         }
 
         List<String> errors = new ArrayList<>();
 
-    //    if (recursoRepository.findByNomeRecurso(recurso.getNomeRecurso()) != null) {
-     //       errors.add("Já existe um recurso com esse nome.");
-     //   }
-
         if (result.hasErrors()) {
             errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.toList()));
+        }
+
+        // Verificar se a Sala está associada ao Recurso e se o idSala é válido
+        if (recurso.getSala() == null || recurso.getSala().getIdSala() == null) {
+            errors.add("O recurso deve incluir um idSala válido.");
+        } else {
+            Long idSala = recurso.getSala().getIdSala();
+            Sala sala = salaRepository.findById(idSala).orElse(null);
+
+            if (sala == null) {
+                errors.add("A Sala associada não foi encontrada.");
+            } else {
+                // Associar a sala encontrada ao recurso
+                recurso.setSala(sala);
+            }
         }
 
         if (!errors.isEmpty()) {
@@ -81,25 +128,35 @@ public class RecursoController {
         try {
             recursoRepository.save(recurso);
             return ResponseEntity.ok().build();
+
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ocorreu um erro ao salvar o recurso. Por favor, tente novamente.");
         }
     }
-    
+
     @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<String> deletarRecurso(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
+    public ResponseEntity<String> deletarRecurso(@PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        boolean hasRequiredAuthority = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ADMINISTRADOR") ||
+                        authority.getAuthority().equals("RECEPCAO"));
+
+        if (!hasRequiredAuthority) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem excluir registros.");
         }
 
         Recurso recurso = recursoRepository.findById(id).orElse(null);
 
         if (recurso != null) {
             recursoRepository.delete(recurso);
-            return ResponseEntity.ok("Recurso deletado com sucesso");
+            return ResponseEntity.ok("Recurso deletado com sucesso!");
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
 }

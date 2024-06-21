@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
+import medplanner.model.Recurso;
 import medplanner.model.Sala;
 import medplanner.repository.SalaRepository;
 
@@ -44,31 +45,43 @@ public class SalaController {
         if (parametros.isEmpty()) {
             return ResponseEntity.ok().body(salaRepository.findAll());
         }
-        if (parametros.get("idSala") != null) {
-            return ResponseEntity.ok().body(salaRepository.findAllByIdSala(parametros.get("idSala")));
+        if (parametros.containsKey("idSala")) {
+            try {
+                Long idSala = Long.parseLong(parametros.get("idSala"));
+                return ResponseEntity.ok().body(salaRepository.findAllByIdSala(idSala));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro idSala deve ser um número.");
+            }
         }
-        if (parametros.get("nomeSala") != null) {
-            return ResponseEntity.ok().body(salaRepository.findByNomeSala((parametros.get("nomeSala"))));
+        if (parametros.containsKey("nomeSala")) {
+            String nomeSala = parametros.get("nomeSala");
+            String nomeSalaComCuringa = "%" + nomeSala + "%";
+            return ResponseEntity.ok().body(salaRepository.findByNomeSala(nomeSalaComCuringa));
         }
-        if (parametros.get("situacao") != null) {
-            return ResponseEntity.ok().body(salaRepository.findAllBySituacao((parametros.get("nomeSala"))));
+        if (parametros.containsKey("situacao")) {
+            return ResponseEntity.ok().body(salaRepository.findAllBySituacao(parametros.get("situacao")));
         }
         return ResponseEntity.badRequest().body("Parâmetro de pesquisa inválidos");
     }
 
-     @PostMapping("/salvar")
+    @PostMapping("/salvar")
     public ResponseEntity<?> salvarSala(@RequestBody @Valid Sala sala, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
+
+        boolean hasRequiredAuthority = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ADMINISTRADOR") ||
+                        authority.getAuthority().equals("RECEPCAO"));
+
+        if (!hasRequiredAuthority) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Apenas usuários com cargo de ADMINISTRADOR e RECEPCIONISTA podem salvar profissionais.");
+                    .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem cadastrar novas salas.");
         }
 
         List<String> errors = new ArrayList<>();
 
-     //   if (salaRepository.findByNomeSala(sala.getNomeSala()).isEmpty() ) {
-     //       errors.add("Já existe uma sala com esse nome.");
-     //   }
+        // if (salaRepository.findByNomeSala(sala.getNomeSala()).isEmpty() ) {
+        // errors.add("Já existe uma sala com esse nome.");
+        // }
 
         if (result.hasErrors()) {
             errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -82,6 +95,11 @@ public class SalaController {
         }
 
         try {
+            if (sala.getRecursos() != null) {
+                for (Recurso recurso : sala.getRecursos()) {
+                    recurso.setSala(sala);
+                }
+            }
             salaRepository.save(sala);
             return ResponseEntity.ok().build();
         } catch (DataIntegrityViolationException e) {
@@ -89,23 +107,25 @@ public class SalaController {
         }
     }
 
-
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarSala(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
+        boolean hasRequiredAuthority = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ADMINISTRADOR") ||
+                        authority.getAuthority().equals("RECEPCAO"));
+
+        if (!hasRequiredAuthority) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem excluir registros.");
         }
 
         Sala sala = salaRepository.findById(id).orElse(null);
 
         if (sala != null) {
             salaRepository.delete(sala);
-            return ResponseEntity.ok("Sala deletada com sucesso");
+            return ResponseEntity.ok("Sala deletada com sucesso!");
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-
-    
 }

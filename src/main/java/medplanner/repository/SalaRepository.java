@@ -9,13 +9,13 @@ import medplanner.model.Sala;
 
 public interface SalaRepository extends JpaRepository<Sala, Long> {
 
-    @Query(value = "SELECT * FROM Sala p WHERE CAST(p.id_sala AS char) LIKE ?1%", nativeQuery = true)
-    List<Sala> findAllByIdSala(String id);
+    @Query(value = "SELECT * FROM Sala p WHERE p.id_sala = ?1", nativeQuery = true)
+    List<Sala> findAllByIdSala(Long id);
 
-    @Query(value = "SELECT * FROM Sala p WHERE p.nome_sala LIKE ?1%", nativeQuery = true)
+    @Query(value = "SELECT * FROM Sala p WHERE p.nome_sala LIKE ?1", nativeQuery = true)
     List<Sala> findByNomeSala(String nomeSala);
 
     @Query(value = "SELECT * FROM Sala p WHERE p.situacao LIKE ?1%", nativeQuery = true)
     List<Sala> findAllBySituacao(String situacao);
-    
+
 }

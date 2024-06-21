@@ -9,10 +9,13 @@ import medplanner.model.Recurso;
 
 public interface RecursoRepository extends JpaRepository<Recurso, Long> {
 
-    @Query(value = "SELECT * FROM Recursos p WHERE CAST(p.id_recurso AS char) LIKE ?1%", nativeQuery = true)
-    List<Recurso> findAllByIdRecurso(String id);
+    @Query(value = "SELECT * FROM Recursos p WHERE p.id_recurso = ?1", nativeQuery = true)
+    List<Recurso> findAllByIdRecurso(Long id);
 
-    @Query(value = "SELECT * FROM Recursos p WHERE p.nome_recurso LIKE ?1%", nativeQuery = true)
+    @Query(value = "SELECT * FROM Recursos p WHERE p.nome_recurso LIKE ?1", nativeQuery = true)
     List<Recurso> findByNomeRecurso(String nomeRecurso);
-    
+
+    @Query(value = "SELECT * FROM Recursos p WHERE p.id_sala = ?1", nativeQuery = true)
+    List<Recurso> findByIdSala(Long idSala);
+
 }
