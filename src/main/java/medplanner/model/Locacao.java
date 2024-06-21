@@ -27,6 +27,11 @@ public class Locacao {
     private LocalDateTime horaInicio;
 
     @Column()
+    @NotEmpty(message = "A data é obrigatória!")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date data;
+
+    @Column()
     @NotEmpty(message = "A hora final é obrigatória!")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime horaFinal;
@@ -36,8 +41,8 @@ public class Locacao {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-//    @ManyToOne
-//    @NotEmpty(message = "O nome da sala é obrigatório!")
-//    @JoinColumn(name = "idSala")
-//    private Sala sala;
+    @ManyToOne
+    @NotEmpty(message = "O nome da sala é obrigatório!")
+    @JoinColumn(name = "idSala")
+    private Sala sala;
 }

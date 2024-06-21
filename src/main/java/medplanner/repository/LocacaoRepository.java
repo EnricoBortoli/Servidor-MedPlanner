@@ -1,9 +1,12 @@
 package medplanner.repository;
 
 import medplanner.model.Locacao;
+import medplanner.model.Sala;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Repository

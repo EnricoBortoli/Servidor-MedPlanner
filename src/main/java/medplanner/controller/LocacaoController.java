@@ -2,6 +2,7 @@ package medplanner.controller;
 
 import medplanner.model.Locacao;
 import medplanner.repository.LocacaoRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -18,23 +19,35 @@ public class LocacaoController {
     @Autowired
     private LocacaoRepository locacaoRepository;
 
-    @PostMapping("/criar")
-    public ResponseEntity<?> criarLocacao(@Valid @RequestBody Locacao locacao, BindingResult result) {
+    @PostMapping("/salvar")
+    public ResponseEntity<?> salvarLocacao(@PathVariable Long id, @Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
+
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
-//
-//        boolean exists = locacaoRepository.existeDataHoraMarcadaNaSala(
-//                locacao.getData(), locacao.getHoraInicio(), locacao.getHoraFinal()
-//        ); // , locacao.getSala()
 
-        //fazer a verificação para cada variavel para fazer a locação
-//        if (exists) {
-//            return ResponseEntity.badRequest().body("Locação já existe para a data, hora e sala selecionados.");
-//        }
+        Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
+        if (locacaoOptional.isEmpty()) {
+            if (this.locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(), locacaoDetails.getHoraFinal(),
+                    locacaoDetails.getData())) {
+                return ResponseEntity.badRequest().body("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+            }
 
-        Locacao savedLocacao = locacaoRepository.save(locacao);
-        return ResponseEntity.ok(savedLocacao);
+            Locacao locacao = new Locacao();
+            BeanUtils.copyProperties(locacaoDetails, locacao);
+            return ResponseEntity.ok(locacao);
+        } else {
+            Locacao locacao = locacaoOptional.get();
+
+            if (this.locacaoRepository.existeDataHoraMarcadaNaSala(locacao.getIdLocacao(),
+                    locacaoDetails.getSala(), locacaoDetails.getHoraInicio(), locacaoDetails.getHoraFinal(),
+                    locacaoDetails.getData())) {
+                return ResponseEntity.badRequest().body("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+            }
+
+            BeanUtils.copyProperties(locacaoDetails, locacao);
+            return ResponseEntity.ok(locacao);
+        }
     }
 
     @GetMapping("/listar")
@@ -47,37 +60,6 @@ public class LocacaoController {
         Optional<Locacao> locacao = locacaoRepository.findById(id);
         return locacao.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/salvar")
-    public ResponseEntity<?> salvarLocacao(@PathVariable Long id, @Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(result.getAllErrors());
-        }
-
-        Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
-        if (!locacaoOptional.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Locacao locacao = locacaoOptional.get();
-        locacao.setHoraInicio(locacaoDetails.getHoraInicio());
-        locacao.setHoraFinal(locacaoDetails.getHoraFinal());
-        locacao.setData(locacaoDetails.getData());
-//        locacao.setAla(locacaoDetails.getAla());
-//        locacao.setProfissional(locacaoDetails.getProfissional());
-//        locacao.setSala(locacaoDetails.getSala());
-
-//        boolean exists = locacaoRepository.existeDataHoraMarcadaNaSala(
-//                locacao.getData(), locacao.getHoraInicio(), locacao.getHoraFinal()
-//        ); // , locacao.getSala()
-
-//        if (exists) {
-//            return ResponseEntity.badRequest().body("Locação já existe para a data, hora e sala especificados.");
-//        }
-
-        Locacao updatedLocacao = locacaoRepository.save(locacao);
-        return ResponseEntity.ok(updatedLocacao);
     }
 
     @DeleteMapping("/delete/{id}")
