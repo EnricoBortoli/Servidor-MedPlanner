@@ -20,16 +20,51 @@ public class AlaController {
     @Autowired
     private AlaRepository alaRepository;
 
-    @PostMapping("/criar")
-    public ResponseEntity<?> criarAla(@RequestBody @Valid Ala ala, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(error -> error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors);
+    @PostMapping("/salvar")
+    public ResponseEntity<?> salvarAla(@PathVariable Long id, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
+        if (alaDetails.getIdAla() == null) {
+
+            if (bindingResult.hasErrors()) {
+                List<String> errors = bindingResult.getAllErrors().stream()
+                        .map(error -> error.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(errors);
+            }
+
+            Optional<Ala> existingAlaByNome = alaRepository.findByNome(alaDetails.getNome());
+            if (existingAlaByNome.isPresent() && !existingAlaByNome.get().getIdAla().equals(alaDetails.getIdAla())) {
+                return ResponseEntity.badRequest().body("Esse nome já existe");
+            }
+
+            Optional<Ala> existingAlaBySigla = alaRepository.findBySigla(alaDetails.getSigla());
+            if (existingAlaBySigla.isPresent() && !existingAlaBySigla.get().getIdAla().equals(alaDetails.getIdAla())) {
+                return ResponseEntity.badRequest().body("Essa sigla já existe");
+            }
+
+            Ala savedAla = alaRepository.save(alaDetails);
+            return ResponseEntity.ok(savedAla);
+        } else {
+            Optional<Ala> ala = alaRepository.findById(id);
+
+            if (ala.isPresent()) {
+                Optional<Ala> existingAlaByNome = alaRepository.findByNome(alaDetails.getNome());
+                if (existingAlaByNome.isPresent() && !existingAlaByNome.get().getIdAla().equals(alaDetails.getIdAla())) {
+                    return ResponseEntity.badRequest().body("Esse nome já existe");
+                }
+
+                Optional<Ala> existingAlaBySigla = alaRepository.findBySigla(alaDetails.getSigla());
+                if (existingAlaBySigla.isPresent() && !existingAlaBySigla.get().getIdAla().equals(alaDetails.getIdAla())) {
+                    return ResponseEntity.badRequest().body("Essa sigla já existe");
+                }
+
+                Ala alaToUpdate = ala.get();
+                BeanUtils.copyProperties(alaDetails, alaToUpdate);
+                return ResponseEntity.ok(alaRepository.save(alaToUpdate));
+
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         }
-        Ala savedAla = alaRepository.save(ala);
-        return ResponseEntity.ok(savedAla);
     }
 
     @GetMapping("/listar")
@@ -42,28 +77,6 @@ public class AlaController {
         Optional<Ala> ala = alaRepository.findById(id);
         if (ala.isPresent()) {
             return ResponseEntity.ok(ala.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PutMapping("/salvar")
-    public ResponseEntity<?> salvarAla(@PathVariable Long id, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(error -> error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors);
-        }
-
-        Optional<Ala> ala = alaRepository.findById(id);
-        if (ala.isPresent()) {
-            Ala alaToUpdate = ala.get();
-            alaToUpdate.setNome(alaDetails.getNome());
-            alaToUpdate.setSigla(alaDetails.getSigla());
-            alaToUpdate.setAndar(alaDetails.getAndar());
-            Ala updatedAla = alaRepository.save(alaToUpdate);
-            return ResponseEntity.ok(updatedAla);
         } else {
             return ResponseEntity.notFound().build();
         }
