@@ -4,6 +4,7 @@ package medplanner.controller;
 import jakarta.validation.Valid;
 import medplanner.model.Ala;
 import medplanner.repository.AlaRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
