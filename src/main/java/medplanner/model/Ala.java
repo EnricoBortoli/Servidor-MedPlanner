@@ -11,7 +11,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of="idAla")
+@EqualsAndHashCode(of="id_ala")
 public class Ala {
 
     @Id
