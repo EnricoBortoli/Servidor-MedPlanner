@@ -1,8 +1,7 @@
 package medplanner.controller;
 
 import medplanner.model.Locacao;
-import medplanner.repository.LocacaoRepository;
-import org.springframework.beans.BeanUtils;
+import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -17,58 +16,59 @@ import java.util.Optional;
 public class LocacaoController {
 
     @Autowired
-    private LocacaoRepository locacaoRepository;
+    private LocacaoService locacaoService;
 
-    @PostMapping("/salvar")
-    public ResponseEntity<?> salvarLocacao(@PathVariable Long id, @Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
 
+    public ResponseEntity<?> salvarLocacao(@Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
 
-        Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
-        if (locacaoOptional.isEmpty()) {
-            if (this.locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(), locacaoDetails.getHoraFinal(),
-                    locacaoDetails.getData())) {
-                return ResponseEntity.badRequest().body("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
-            }
-
-            Locacao locacao = new Locacao();
-            BeanUtils.copyProperties(locacaoDetails, locacao);
+        try {
+            Locacao locacao = locacaoService.salvarLocacao(locacaoDetails);
             return ResponseEntity.ok(locacao);
-        } else {
-            Locacao locacao = locacaoOptional.get();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
-            if (this.locacaoRepository.existeDataHoraMarcadaNaSala(locacao.getIdLocacao(),
-                    locacaoDetails.getSala(), locacaoDetails.getHoraInicio(), locacaoDetails.getHoraFinal(),
-                    locacaoDetails.getData())) {
-                return ResponseEntity.badRequest().body("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+    @PostMapping("/salvar")
+    public ResponseEntity<?> atualizarLocacao(@PathVariable Long id, @Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
+        try {
+            Locacao locacao;
+            if (locacaoDetails.getIdLocacao() == null) {
+                locacao = locacaoService.salvarLocacao(locacaoDetails);
+            } else {
+               locacao = locacaoService.atualizarLocacao(id, locacaoDetails);
             }
-
-            BeanUtils.copyProperties(locacaoDetails, locacao);
             return ResponseEntity.ok(locacao);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/listar")
     public List<Locacao> listarLocacoes() {
-        return locacaoRepository.findAll();
+        return locacaoService.listarLocacoes();
     }
 
-    @GetMapping("/buscar")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<?> buscarLocacaoById(@PathVariable Long id) {
-        Optional<Locacao> locacao = locacaoRepository.findById(id);
+        Optional<Locacao> locacao = locacaoService.buscarLocacaoById(id);
         return locacao.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteLocacao(@PathVariable Long id) {
-        Optional<Locacao> locacao = locacaoRepository.findById(id);
-        if (!locacao.isPresent()) {
-            return ResponseEntity.notFound().build();
+        try {
+            locacaoService.deletarLocacao(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        locacaoRepository.delete(locacao.get());
-        return ResponseEntity.ok().build();
     }
 }

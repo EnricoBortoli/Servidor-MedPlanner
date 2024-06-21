@@ -13,7 +13,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of="idLocacao")
+@EqualsAndHashCode(of="id_locacao")
 public class Locacao {
 
 
@@ -43,6 +43,11 @@ public class Locacao {
 
     @ManyToOne
     @NotEmpty(message = "O nome da sala é obrigatório!")
-    @JoinColumn(name = "idSala")
+    @JoinColumn(name = "id_sala")
     private Sala sala;
+
+    @ManyToOne
+    @NotEmpty(message = "O nome da ala é obrigatório!")
+    @JoinColumn(name = "id_ala")
+    private Ala ala;
 }
