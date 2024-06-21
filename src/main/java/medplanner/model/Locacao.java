@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -23,22 +24,17 @@ public class Locacao {
     @Column()
     @NotEmpty(message = "A hora inicial é obrigatória!")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date horaInicio;
+    private LocalDateTime horaInicio;
 
     @Column()
     @NotEmpty(message = "A hora final é obrigatória!")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date horaFinal;
-
-    @Column()
-    @NotEmpty(message = "A data é obrigatória!")
-    @Temporal(TemporalType.DATE)
-    private Date data;
+    private LocalDateTime horaFinal;
 
     @ManyToOne
     @NotEmpty(message = "O nome do médico é obrigatório!")
     @JoinColumn(name = "id_usuario")
-    private Profissional profissional;
+    private Usuario usuario;
 
 //    @ManyToOne
 //    @NotEmpty(message = "O nome da sala é obrigatório!")

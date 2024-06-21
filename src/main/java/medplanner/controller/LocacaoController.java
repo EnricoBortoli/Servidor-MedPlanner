@@ -8,7 +8,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,13 +86,6 @@ public class LocacaoController {
         if (!locacao.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-
-//        boolean hasFutureBookings = locacaoRepository.existsByDataAndHoraInicioAfter(new Date());
-
-//        if (hasFutureBookings) {
-//            return ResponseEntity.badRequest().body("Não é possível deletar a locação pois há locações futuras marcadas.");
-//        }
-
         locacaoRepository.delete(locacao.get());
         return ResponseEntity.ok().build();
     }
