@@ -1,10 +1,8 @@
 package medplanner.controller;
 
-
 import jakarta.validation.Valid;
 import medplanner.model.Ala;
-import medplanner.repository.AlaRepository;
-import org.springframework.beans.BeanUtils;
+import medplanner.services.AlaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -12,56 +10,31 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("ala")
 public class AlaController {
 
     @Autowired
-    private AlaRepository alaRepository;
+    private AlaService alaService;
 
     @PostMapping("/salvar")
-    public ResponseEntity<?> salvarAla(@PathVariable Long id, @Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
+    public ResponseEntity<?> salvarAla(@Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
+        List<String> errors = alaService.validateAla(alaDetails, bindingResult);
+        if (!errors.isEmpty()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         if (alaDetails.getIdAla() == null) {
-
-            if (bindingResult.hasErrors()) {
-                List<String> errors = bindingResult.getAllErrors().stream()
-                        .map(error -> error.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(errors);
-            }
-
-            Optional<Ala> existingAlaByNome = alaRepository.findByNome(alaDetails.getNome());
-            if (existingAlaByNome.isPresent() && !existingAlaByNome.get().getIdAla().equals(alaDetails.getIdAla())) {
-                return ResponseEntity.badRequest().body("Esse nome já existe");
-            }
-
-            Optional<Ala> existingAlaBySigla = alaRepository.findBySigla(alaDetails.getSigla());
-            if (existingAlaBySigla.isPresent() && !existingAlaBySigla.get().getIdAla().equals(alaDetails.getIdAla())) {
-                return ResponseEntity.badRequest().body("Essa sigla já existe");
-            }
-
-            Ala savedAla = alaRepository.save(alaDetails);
+            Ala savedAla = alaService.saveAla(alaDetails);
             return ResponseEntity.ok(savedAla);
         } else {
-            Optional<Ala> ala = alaRepository.findById(id);
+            Optional<Ala> ala = alaService.getAlaById(alaDetails.getIdAla());
 
             if (ala.isPresent()) {
-                Optional<Ala> existingAlaByNome = alaRepository.findByNome(alaDetails.getNome());
-                if (existingAlaByNome.isPresent() && !existingAlaByNome.get().getIdAla().equals(alaDetails.getIdAla())) {
-                    return ResponseEntity.badRequest().body("Esse nome já existe");
-                }
-
-                Optional<Ala> existingAlaBySigla = alaRepository.findBySigla(alaDetails.getSigla());
-                if (existingAlaBySigla.isPresent() && !existingAlaBySigla.get().getIdAla().equals(alaDetails.getIdAla())) {
-                    return ResponseEntity.badRequest().body("Essa sigla já existe");
-                }
-
                 Ala alaToUpdate = ala.get();
-                BeanUtils.copyProperties(alaDetails, alaToUpdate);
-                return ResponseEntity.ok(alaRepository.save(alaToUpdate));
-
+                Ala updatedAla = alaService.updateAla(alaDetails, alaToUpdate);
+                return ResponseEntity.ok(updatedAla);
             } else {
                 return ResponseEntity.notFound().build();
             }
@@ -70,12 +43,12 @@ public class AlaController {
 
     @GetMapping("/listar")
     public List<Ala> listarAlas() {
-        return alaRepository.findAll();
+        return alaService.getAllAlas();
     }
 
-    @GetMapping("/buscar")
-    public ResponseEntity<Ala>buscarAlaById(@PathVariable Long id) {
-        Optional<Ala> ala = alaRepository.findById(id);
+    @GetMapping("/buscar/{id}")
+    public ResponseEntity<Ala> buscarAlaById(@PathVariable Long id) {
+        Optional<Ala> ala = alaService.getAlaById(id);
         if (ala.isPresent()) {
             return ResponseEntity.ok(ala.get());
         } else {
@@ -85,9 +58,9 @@ public class AlaController {
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deleteAla(@PathVariable Long id) {
-        Optional<Ala> ala = alaRepository.findById(id);
+        Optional<Ala> ala = alaService.getAlaById(id);
         if (ala.isPresent()) {
-            alaRepository.delete(ala.get());
+            alaService.deleteAla(ala.get());
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
