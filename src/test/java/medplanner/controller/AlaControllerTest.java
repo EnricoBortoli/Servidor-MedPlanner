@@ -1,161 +1,87 @@
-//package medplanner.controller;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import medplanner.model.Ala;
-//import medplanner.repository.AlaRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//import java.util.Collections;
-//import java.util.Optional;
-//
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.ArgumentMatchers.anyInt;
-//import static org.mockito.BDDMockito.given;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//
-//@WebMvcTest(AlaController.class)
-//public class AlaControllerTest {
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockBean
-//    private AlaRepository alaRepository;
-//
-//    @Autowired
-//    private ObjectMapper objectMapper;
-//
-//    private Ala ala;
-//
-////    @BeforeEach
-////    void setUp() {
-////        ala = new Ala();
-////        ala.setIdAla(1L);
-////        ala.setNome("Ala Norte");
-////        ala.setSigla("AN");
-////        ala.setAndar(1);
-////    }
-//
-////    @Test
-////    void createAla_shouldReturnCreatedAla() throws Exception {
-////        given(alaRepository.save(any(Ala.class))).willReturn(ala);
-////
-////        mockMvc.perform(post("/ala")
-////                        .contentType(MediaType.APPLICATION_JSON)
-////                        .content(objectMapper.writeValueAsString(ala)))
-////                .andExpect(status().isOk())
-////                .andExpect(jsonPath("$.idAla").value(ala.getIdAla()))
-////                .andExpect(jsonPath("$.nome").value(ala.getNome()))
-////                .andExpect(jsonPath("$.sigla").value(ala.getSigla()))
-////                .andExpect(jsonPath("$.andar").value(ala.getAndar()));
-////    }
-////
-////    @Test
-////    void createAla_shouldReturnBadRequestForInvalidAla() throws Exception {
-////        Ala invalidAla = new Ala();
-////        invalidAla.setNome(""); // Nome inválido
-////        invalidAla.setSigla("AN123456789"); // Sigla inválida
-////        invalidAla.setAndar(-1); // Andar inválido
-////
-////        mockMvc.perform(post("/ala")
-////                        .contentType(MediaType.APPLICATION_JSON)
-////                        .content(objectMapper.writeValueAsString(invalidAla)))
-////                .andExpect(status().isBadRequest())
-////                .andExpect(jsonPath("$[0]").value("Nome é obrigatório"))
-////                .andExpect(jsonPath("$[1]").value("Sigla deve ter no máximo 10 caracteres"))
-////                .andExpect(jsonPath("$[2]").value("Andar deve ser um número positivo"));
-////    }
-////
-////    @Test
-////    void getAllAlas_shouldReturnAlas() throws Exception {
-////        given(alaRepository.findAll()).willReturn(Collections.singletonList(ala));
-////
-////        mockMvc.perform(get("/ala")
-////                        .contentType(MediaType.APPLICATION_JSON))
-////                .andExpect(status().isOk())
-////                .andExpect(jsonPath("$[0].idAla").value(ala.getIdAla()))
-////                .andExpect(jsonPath("$[0].nome").value(ala.getNome()))
-////                .andExpect(jsonPath("$[0].sigla").value(ala.getSigla()))
-////                .andExpect(jsonPath("$[0].andar").value(ala.getAndar()));
-////    }
-////
-////    @Test
-////    void getAlaById_shouldReturnAla() throws Exception {
-////        given(alaRepository.findById((long) anyInt())).willReturn(Optional.of(ala));
-////
-////        mockMvc.perform(get("/ala/{id}", 1)
-////                        .contentType(MediaType.APPLICATION_JSON))
-////                .andExpect(status().isOk())
-////                .andExpect(jsonPath("$.idAla").value(ala.getIdAla()))
-////                .andExpect(jsonPath("$.nome").value(ala.getNome()))
-////                .andExpect(jsonPath("$.sigla").value(ala.getSigla()))
-////                .andExpect(jsonPath("$.andar").value(ala.getAndar()));
-////    }
-////
-////    @Test
-////    void getAlaById_shouldReturnNotFound() throws Exception {
-////        given(alaRepository.findById((long) anyInt())).willReturn(Optional.empty());
-////
-////        mockMvc.perform(get("/ala/{id}", 1)
-////                        .contentType(MediaType.APPLICATION_JSON))
-////                .andExpect(status().isNotFound());
-////    }
-////
-////    @Test
-////    void updateAla_shouldReturnUpdatedAla() throws Exception {
-////        given(alaRepository.findById((long) anyInt())).willReturn(Optional.of(ala));
-////        given(alaRepository.save(any(Ala.class))).willReturn(ala);
-////
-////        ala.setNome("Ala Sul");
-////
-////        mockMvc.perform(put("/ala/{id}", 1)
-////                        .contentType(MediaType.APPLICATION_JSON)
-////                        .content(objectMapper.writeValueAsString(ala)))
-////                .andExpect(status().isOk())
-////                .andExpect(jsonPath("$.idAla").value(ala.getIdAla()))
-////                .andExpect(jsonPath("$.nome").value(ala.getNome()))
-////                .andExpect(jsonPath("$.sigla").value(ala.getSigla()))
-////                .andExpect(jsonPath("$.andar").value(ala.getAndar()));
-////    }
-////
-////    @Test
-////    void updateAla_shouldReturnBadRequestForInvalidAla() throws Exception {
-////        Ala invalidAla = new Ala();
-////        invalidAla.setNome(""); // Nome inválido
-////        invalidAla.setSigla("AN123456789"); // Sigla inválida
-////        invalidAla.setAndar(-1); // Andar inválido
-////
-////        mockMvc.perform(put("/ala/{id}", 1)
-////                        .contentType(MediaType.APPLICATION_JSON)
-////                        .content(objectMapper.writeValueAsString(invalidAla)))
-////                .andExpect(status().isBadRequest())
-////                .andExpect(jsonPath("$[0]").value("Nome é obrigatório"))
-////                .andExpect(jsonPath("$[1]").value("Sigla deve ter no máximo 10 caracteres"))
-////                .andExpect(jsonPath("$[2]").value("Andar deve ser um número positivo"));
-////    }
-////
-////    @Test
-////    void deleteAla_shouldReturnOk() throws Exception {
-////        given(alaRepository.findById((long) anyInt())).willReturn(Optional.of(ala));
-////
-////        mockMvc.perform(delete("/ala/{id}", 1)
-////                        .contentType(MediaType.APPLICATION_JSON))
-////                .andExpect(status().isOk());
-////    }
-////
-////    @Test
-////    void deleteAla_shouldReturnNotFound() throws Exception {
-////        given(alaRepository.findById((long) anyInt())).willReturn(Optional.empty());
-////
-////        mockMvc.perform(delete("/ala/{id}", 1)
-////                        .contentType(MediaType.APPLICATION_JSON))
-////                .andExpect(status().isNotFound());
-////    }
-////}
+package medplanner.controller;
+
+import medplanner.model.Ala;
+import medplanner.services.AlaService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.BindingResult;
+
+import java.util.Collections;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+public class AlaControllerTest {
+
+    @Mock
+    private AlaService alaService;
+
+    @InjectMocks
+    private AlaController alaController;
+
+    private MockMvc mockMvc;
+
+    private Ala ala;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(alaController).build();
+        ala = new Ala();
+        ala.setIdAla(1L);
+        ala.setNome("Test Ala");
+        ala.setSigla("TST");
+        ala.setAndar(1);
+    }
+
+    @Test
+    public void testSalvarAla() throws Exception {
+        when(alaService.validateAla(any(Ala.class), any(BindingResult.class))).thenReturn(Collections.emptyList());
+        when(alaService.saveAla(any(Ala.class))).thenReturn(ala);
+
+        mockMvc.perform(post("/ala/salvar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"Test Ala\",\"sigla\":\"TST\",\"andar\":1}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Test Ala"))
+                .andExpect(jsonPath("$.sigla").value("TST"));
+    }
+
+    @Test
+    public void testListarAlas() throws Exception {
+        when(alaService.getAllAlas()).thenReturn(Collections.singletonList(ala));
+
+        mockMvc.perform(get("/ala/listar"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("Test Ala"))
+                .andExpect(jsonPath("$[0].sigla").value("TST"));
+    }
+
+    @Test
+    public void testBuscarAlaById() throws Exception {
+        when(alaService.getAlaById(1L)).thenReturn(Optional.of(ala));
+
+        mockMvc.perform(get("/ala/buscar/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Test Ala"))
+                .andExpect(jsonPath("$.sigla").value("TST"));
+    }
+
+    @Test
+    public void testDeleteAla() throws Exception {
+        when(alaService.getAlaById(1L)).thenReturn(Optional.of(ala));
+        doNothing().when(alaService).deleteAla(any(Ala.class));
+
+        mockMvc.perform(delete("/ala/deletar/{id}", 1L))
+                .andExpect(status().isOk());
+    }
+}
