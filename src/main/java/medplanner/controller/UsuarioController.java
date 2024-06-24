@@ -72,7 +72,7 @@ public class UsuarioController {
             return ResponseEntity.ok().body(usuarioRepository.findAll());
         }
         if (parametros.get("id") != null) {
-            return ResponseEntity.ok().body(usuarioRepository.findAllByIdUsuario(parametros.get("id")));
+            return ResponseEntity.ok().body(usuarioRepository.findById(Long.parseLong(parametros.get("id"))));
         }
         if (parametros.get("nome") != null) {
             return ResponseEntity.ok().body(usuarioRepository.findAllByNomeUsuario((parametros.get("nome"))));
@@ -159,6 +159,7 @@ public class UsuarioController {
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             response.put("usuario", usuarioAutenticado.getNome());
+            response.put("role", usuarioAutenticado.getCargo().toString());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
