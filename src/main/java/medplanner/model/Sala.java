@@ -2,6 +2,8 @@ package medplanner.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -25,7 +27,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of="idSala")
+@EqualsAndHashCode(of = "idSala")
 public class Sala {
 
     @Id
@@ -39,11 +41,11 @@ public class Sala {
     @Size(max = 50, message = "O nome da sala deve ter no máximo 50 caracteres")
     private String nomeSala;
 
-/**
-    @ManyToOne
-    @JoinColumn(name="IdAla")
-    private Ala idAla;  
-*/
+    /**
+     * @ManyToOne
+     * @JoinColumn(name="IdAla")
+     *                           private Ala idAla;
+     */
     /**
      * A - Ativo
      * M - Manutenção
@@ -54,7 +56,7 @@ public class Sala {
     @Size(max = 1, message = "A situação deve ter no máximo 1 caracteres")
     private String situacao;
 
-    @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recurso> recursos;
-    
+
 }

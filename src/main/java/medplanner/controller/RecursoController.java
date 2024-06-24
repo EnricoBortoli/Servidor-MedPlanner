@@ -28,45 +28,41 @@ import jakarta.validation.Valid;
 import medplanner.dto.RecursoDTO;
 import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Recurso;
-import medplanner.model.Sala;
-import medplanner.repository.RecursoRepository;
-import medplanner.repository.SalaRepository;
+
+import medplanner.services.RecursoService;
 
 @RestController
-@RequestMapping("recurso")
+@RequestMapping("/recurso")
 public class RecursoController {
 
     @Autowired
-    private RecursoRepository recursoRepository;
-
-    @Autowired
-    private SalaRepository salaRepository;
+    private RecursoService recursoService;
 
     @Autowired
     private CustomExceptionHandler customExceptionHandler;
 
     @GetMapping("/buscar")
-    public ResponseEntity<?> buscarRecurso(@RequestParam Map<String, String> parametros) {
-
+    public ResponseEntity<?> buscarRecursos(@RequestParam Map<String, String> parametros) {
         List<Recurso> recursos;
 
         if (parametros.isEmpty()) {
-            recursos = recursoRepository.findAll();
+            recursos = recursoService.buscarTodosRecursos();
         } else if (parametros.containsKey("idRecurso")) {
             try {
                 Long idRecurso = Long.parseLong(parametros.get("idRecurso"));
-                recursos = recursoRepository.findAllByIdRecurso(idRecurso);
+                return recursoService.buscarRecursoPorId(idRecurso)
+                        .map(ResponseEntity::ok)
+                        .orElse(ResponseEntity.notFound().build());
             } catch (NumberFormatException e) {
                 return ResponseEntity.badRequest().body("O parâmetro idRecurso deve ser um número.");
             }
         } else if (parametros.containsKey("nomeRecurso")) {
             String nomeRecurso = parametros.get("nomeRecurso");
-            String nomeRecursoComCuringa = "%" + nomeRecurso + "%";
-            recursos = recursoRepository.findByNomeRecurso(nomeRecursoComCuringa);
+            recursos = recursoService.buscarRecursosPorNome(nomeRecurso);
         } else if (parametros.containsKey("idSala")) {
             try {
                 Long idSala = Long.parseLong(parametros.get("idSala"));
-                recursos = recursoRepository.findByIdSala(idSala);
+                recursos = recursoService.buscarRecursosPorIdSala(idSala);
             } catch (NumberFormatException e) {
                 return ResponseEntity.badRequest().body("O parâmetro idSala deve ser um número.");
             }
@@ -84,10 +80,9 @@ public class RecursoController {
     }
 
     @PostMapping("/salvar")
-    public ResponseEntity<?> salvarRecurso(@RequestBody @Valid Recurso recurso, BindingResult result,
+    public ResponseEntity<?> salvarRecurso(@RequestBody @Valid RecursoDTO recursoDTO, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // Verificação de permissões
         boolean hasRequiredAuthority = userDetails.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ADMINISTRADOR") ||
                         authority.getAuthority().equals("RECEPCAO"));
@@ -104,19 +99,9 @@ public class RecursoController {
                     .collect(Collectors.toList()));
         }
 
-        // Verificar se a Sala está associada ao Recurso e se o idSala é válido
-        if (recurso.getSala() == null || recurso.getSala().getIdSala() == null) {
+        Long idSala = recursoDTO.getIdSala();
+        if (idSala == null) {
             errors.add("O recurso deve incluir um idSala válido.");
-        } else {
-            Long idSala = recurso.getSala().getIdSala();
-            Sala sala = salaRepository.findById(idSala).orElse(null);
-
-            if (sala == null) {
-                errors.add("A Sala associada não foi encontrada.");
-            } else {
-                // Associar a sala encontrada ao recurso
-                recurso.setSala(sala);
-            }
         }
 
         if (!errors.isEmpty()) {
@@ -126,9 +111,12 @@ public class RecursoController {
         }
 
         try {
-            recursoRepository.save(recurso);
-            return ResponseEntity.ok().build();
+            Recurso recurso = new Recurso();
+            recurso.setNomeRecurso(recursoDTO.getNomeRecurso());
+            recurso.setDescricao(recursoDTO.getDescricao());
 
+            Recurso savedRecurso = recursoService.salvarRecursoComSala(recurso, idSala);
+            return ResponseEntity.ok(savedRecurso);
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
         } catch (Exception e) {
@@ -149,14 +137,11 @@ public class RecursoController {
                     .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem excluir registros.");
         }
 
-        Recurso recurso = recursoRepository.findById(id).orElse(null);
-
-        if (recurso != null) {
-            recursoRepository.delete(recurso);
+        try {
+            recursoService.deletarRecurso(id);
             return ResponseEntity.ok("Recurso deletado com sucesso!");
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao deletar o recurso.");
         }
     }
-
 }

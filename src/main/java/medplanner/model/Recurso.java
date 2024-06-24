@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of="idRecurso")
+@EqualsAndHashCode(of = "idRecurso")
 public class Recurso {
 
     @Id
@@ -39,7 +39,6 @@ public class Recurso {
     @Size(max = 100, message = "O nome do recurso deve ter no máximo 100 caracteres")
     private String nomeRecurso;
 
- 
     @Column()
     @NotEmpty(message = "A descrição é obrigatória")
     @Size(max = 100, message = "A descrição deve ter no máximo 100 caracteres")
@@ -47,7 +46,7 @@ public class Recurso {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="id_sala")
-    private Sala sala;  
-    
+    @JoinColumn(name = "id_sala")
+    private Sala sala;
+
 }
