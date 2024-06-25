@@ -43,7 +43,7 @@ public class Locacao {
 
     @ManyToOne
     @NotEmpty(message = "O nome da sala é obrigatório!")
-    @JoinColumn(name = "id_sala")
+    @JoinColumn(name = "idSala")
     private Sala sala;
 
     @ManyToOne

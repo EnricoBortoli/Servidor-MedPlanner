@@ -29,4 +29,12 @@ INSERT INTO medplanner.profissional (id_usuario, num_Crm, uf_Crm, id_especialida
     (3, "67890", "RJ", 2), -- Maria Oliveira, Neurologia
     (4, "54321", "MG", 6); -- Carlos Pereira, Ortopedia
 
-    
+
+-- Inserção de dados na tabela ala
+INSERT INTO medplanner.ala (nome, sigla, andar) values
+   ("Ala Norte", "AN", 1);
+
+
+-- Inserção de dados na tabela sala
+INSERT INTO medplanner.sala (nome_sala, situacao, id_ala) values
+    ("Consultório médico 1", "A", 1);

@@ -1,5 +1,6 @@
 package medplanner.controller;
 
+import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
 import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,21 +20,8 @@ public class LocacaoController {
     private LocacaoService locacaoService;
 
 
-    public ResponseEntity<?> salvarLocacao(@Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(result.getAllErrors());
-        }
-
-        try {
-            Locacao locacao = locacaoService.salvarLocacao(locacaoDetails);
-            return ResponseEntity.ok(locacao);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PostMapping("/salvar")
-    public ResponseEntity<?> atualizarLocacao(@PathVariable Long id, @Valid @RequestBody Locacao locacaoDetails, BindingResult result) {
+    public ResponseEntity<?> atualizarLocacao(@PathVariable Long id, @Valid @RequestBody LocacaoDTO locacaoDetails, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
