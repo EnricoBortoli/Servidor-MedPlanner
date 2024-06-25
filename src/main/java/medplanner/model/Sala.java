@@ -5,14 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -41,11 +34,11 @@ public class Sala {
     @Size(max = 50, message = "O nome da sala deve ter no máximo 50 caracteres")
     private String nomeSala;
 
-    /**
-     * @ManyToOne
-     * @JoinColumn(name="IdAla")
-     *                           private Ala idAla;
-     */
+
+     @OneToOne
+     @JoinColumn(name="id_ala")
+     private Ala idAla;
+
     /**
      * A - Ativo
      * M - Manutenção
