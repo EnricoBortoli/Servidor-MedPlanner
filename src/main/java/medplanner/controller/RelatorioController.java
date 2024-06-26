@@ -20,21 +20,21 @@ public class RelatorioController {
     @Autowired
     private RelatorioService relatorioService;
 
-    @GetMapping("/medicos-por-sala")
-    public ResponseEntity<List<RelatorioDTO>> getMedicosPorSala(
-            @RequestParam Long salaId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
-        List<RelatorioDTO> relatorio = relatorioService.medicosPorSala(salaId, dataInicio, dataFim);
-        return ResponseEntity.ok(relatorio);
-    }
-
-    @GetMapping("/salas-por-medico")
-    public ResponseEntity<List<RelatorioDTO>> getSalasPorMedico(
-            @RequestParam Long medicoId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
-        List<RelatorioDTO> relatorio = relatorioService.salasPorMedico(medicoId, dataInicio, dataFim);
-        return ResponseEntity.ok(relatorio);
-    }
+//    @GetMapping("/medicos-por-sala")
+//    public ResponseEntity<List<RelatorioDTO>> getMedicosPorSala(
+//            @RequestParam Long salaId,
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
+//        List<RelatorioDTO> relatorio = relatorioService.medicosPorSala(salaId, dataInicio, dataFim);
+//        return ResponseEntity.ok(relatorio);
+//    }
+//
+//    @GetMapping("/salas-por-medico")
+//    public ResponseEntity<List<RelatorioDTO>> getSalasPorMedico(
+//            @RequestParam Long medicoId,
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
+//        List<RelatorioDTO> relatorio = relatorioService.salasPorMedico(medicoId, dataInicio, dataFim);
+//        return ResponseEntity.ok(relatorio);
+//    }
 }
