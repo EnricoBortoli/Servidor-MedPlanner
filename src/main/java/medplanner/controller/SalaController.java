@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,9 +25,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import medplanner.model.Sala;
-import medplanner.services.SalaService;
 import medplanner.exception.CustomExceptionHandler;
+import medplanner.model.Ala;
+import medplanner.model.Sala;
+import medplanner.services.AlaService;
+import medplanner.services.SalaService;
 
 @RestController
 @RequestMapping("/sala")
@@ -37,11 +39,13 @@ public class SalaController {
     private SalaService salaService;
 
     @Autowired
+    private AlaService alaService;
+
+    @Autowired
     private CustomExceptionHandler customExceptionHandler;
 
     @GetMapping("/buscar")
     public ResponseEntity<?> buscarSalas(@RequestParam Map<String, String> parametros) {
-        // Use the service methods to handle the business logic
         if (parametros.isEmpty()) {
             return ResponseEntity.ok(salaService.buscarTodasSalas());
         }
@@ -61,6 +65,22 @@ public class SalaController {
         }
         if (parametros.containsKey("situacao")) {
             return ResponseEntity.ok(salaService.buscarSalasPorSituacao(parametros.get("situacao")));
+        }
+        if (parametros.containsKey("idAla")) {
+            try {
+                Long idAla = Long.parseLong(parametros.get("idAla"));
+                return ResponseEntity.ok(salaService.buscarSalasPorAla(idAla));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro idAla deve ser um número.");
+            }
+        }
+        if (parametros.containsKey("andar")) {
+            try {
+                Integer andar = Integer.parseInt(parametros.get("andar"));
+                return ResponseEntity.ok(salaService.buscarSalasPorAndar(andar));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro andar deve ser um número.");
+            }
         }
         return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos.");
     }
@@ -91,8 +111,15 @@ public class SalaController {
         }
 
         try {
-            Sala savedSala = salaService.salvarSala(sala);
-            return ResponseEntity.ok(savedSala);
+            Optional<Ala> optionalAla = alaService.getAlaById(sala.getAla().getIdAla());
+            if (optionalAla.isPresent()) {
+                Ala ala = optionalAla.get();
+                sala.setAla(ala);
+                Sala savedSala = salaService.salvarSala(sala);
+                return ResponseEntity.ok(savedSala);
+            } else {
+                return ResponseEntity.badRequest().body("Ala não encontrada com o ID fornecido.");
+            }
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
         }
