@@ -19,18 +19,21 @@ public class LocacaoController {
     @Autowired
     private LocacaoService locacaoService;
 
-
     @PostMapping("/salvar")
-    public ResponseEntity<?> atualizarLocacao(@PathVariable Long id, @Valid @RequestBody LocacaoDTO locacaoDetails, BindingResult result) {
+    public ResponseEntity<?> atualizarLocacao(@Valid @RequestBody LocacaoDTO locacaoDetails, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
         try {
             Locacao locacao;
             if (locacaoDetails.getIdLocacao() == null) {
-                locacao = locacaoService.salvarLocacao(locacaoDetails);
+                if (locacaoDetails.getIdUsuario() == null) {
+                    locacao = locacaoService.salvarLocacao(locacaoDetails);
+                } else {
+                    locacao = locacaoService.salvarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
+                }
             } else {
-               locacao = locacaoService.atualizarLocacao(id, locacaoDetails);
+                locacao = locacaoService.atualizarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
             }
             return ResponseEntity.ok(locacao);
         } catch (IllegalArgumentException e) {

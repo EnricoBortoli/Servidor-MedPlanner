@@ -12,6 +12,7 @@ import java.util.Date;
 @Setter
 public class LocacaoDTO {
         private Long idLocacao;
+        private Long idUsuario;
         private LocalDateTime horaInicio;
         private Date data;
         private LocalDateTime horaFinal;
