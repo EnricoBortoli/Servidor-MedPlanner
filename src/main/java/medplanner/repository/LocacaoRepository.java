@@ -25,4 +25,11 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
     @Query("SELECT l FROM Locacao l WHERE l.usuario.idUsuario = :medicoId AND l.horaInicio >= :dataInicio AND l.horaFinal <= :dataFim")
     List<Locacao> findByMedicoIdAndPeriodo(Long medicoId, LocalDateTime dataInicio, LocalDateTime dataFim);
 
+    @Query(value = "SELECT * FROM Locacao l WHERE CAST(l.id_usuario AS char) LIKE ?1%", nativeQuery = true)
+    List<Locacao> findByMedico(String idMedico);
+
+    @Query(value = "SELECT * FROM Locacao l WHERE CAST(l.id_sala AS char) LIKE ?1%", nativeQuery = true)
+    List<Locacao> findBySala(String idSala);
+
+
 }

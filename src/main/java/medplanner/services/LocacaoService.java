@@ -73,6 +73,14 @@ public class LocacaoService {
         return locacaoRepository.findById(id);
     }
 
+    public List<Locacao> findBySala(String id) {
+        return locacaoRepository.findBySala(id);
+    }
+
+    public List<Locacao> findByMedico(String id) {
+        return locacaoRepository.findByMedico(id);
+    }
+
     public void deletarLocacao(Long id) {
         Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
         if (!locacaoOptional.isPresent()) {

@@ -38,8 +38,6 @@ INSERT INTO medplanner.ala (nome, sigla) VALUES
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala) values
     ("Consultório médico 1", "A", 1);
 
-
-
 INSERT INTO medplanner.locacao (hora_inicio, data, hora_final, id_usuario, id_sala, id_ala) VALUES
     ('2024-07-01 08:00:00', '2024-07-01', '2024-07-01 09:00:00', 2, 1, 1);
 

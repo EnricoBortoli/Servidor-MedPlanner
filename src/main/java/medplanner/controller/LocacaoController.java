@@ -2,6 +2,8 @@ package medplanner.controller;
 
 import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
+import medplanner.repository.LocacaoRepository;
+import medplanner.model.Locacao;
 import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -46,11 +49,27 @@ public class LocacaoController {
         return locacaoService.listarLocacoes();
     }
 
-    @GetMapping("/buscar/{id}")
-    public ResponseEntity<?> buscarLocacaoById(@PathVariable Long id) {
-        Optional<Locacao> locacao = locacaoService.buscarLocacaoById(id);
-        return locacao.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/buscar")
+    public ResponseEntity<?> buscarLocacao(@RequestBody Map<String, String> parametros) {
+        if (parametros.isEmpty()) {
+            return ResponseEntity.ok().body(locacaoService.listarLocacoes());
+        }
+        if (parametros.containsKey("id")) {
+            Optional<Locacao> locacao = locacaoService
+                    .buscarLocacaoById(Long.parseLong(parametros.get("id")));
+            return ResponseEntity.ok().body(locacao);
+        }
+        if (parametros.containsKey("sala")) {
+            List<Locacao> locacao = locacaoService
+                    .findBySala(parametros.get("sala"));
+            return ResponseEntity.ok().body(locacao);
+        }
+        if (parametros.containsKey("medico")) {
+            List<Locacao> locacao = locacaoService
+                    .findByMedico(parametros.get("medico"));
+            return ResponseEntity.ok().body(locacao);
+        }
+        return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos");
     }
 
     @DeleteMapping("/delete/{id}")
