@@ -11,7 +11,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,9 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Sala;
 import medplanner.services.SalaService;
-import medplanner.exception.CustomExceptionHandler;
 
 @RestController
 @RequestMapping("/sala")
@@ -61,6 +60,22 @@ public class SalaController {
         }
         if (parametros.containsKey("situacao")) {
             return ResponseEntity.ok(salaService.buscarSalasPorSituacao(parametros.get("situacao")));
+        }
+        if (parametros.containsKey("idAla")) {
+            try {
+                Long idAla = Long.parseLong(parametros.get("idAla"));
+                return ResponseEntity.ok(salaService.buscarSalasPorAla(idAla));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro idAla deve ser um número.");
+            }
+        }
+        if (parametros.containsKey("andar")) {
+            try {
+                Integer andar = Integer.parseInt(parametros.get("andar"));
+                return ResponseEntity.ok(salaService.buscarSalasPorAndar(andar));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro andar deve ser um número.");
+            }
         }
         return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos.");
     }

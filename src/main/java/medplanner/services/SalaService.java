@@ -37,17 +37,25 @@ public class SalaService {
     return salaRepository.findAllBySituacao(situacao);
   }
 
+  public List<Sala> buscarSalasPorAla(Long idAla) {
+    return salaRepository.findByAla(idAla);
+  }
+
+  public List<Sala> buscarSalasPorAndar(Integer andar) {
+      return salaRepository.findByAndar(andar);
+  }
+
   public Sala salvarSala(Sala sala) {
-    // Salva a sala sem os recursos associados
+
     Sala salaSalva = salaRepository.save(sala);
-    // Atualiza os recursos com o id da sala salva
+
     if (sala.getRecursos() != null) {
       for (Recurso recurso : sala.getRecursos()) {
-        recurso.setSala(salaSalva); // Associa a sala salva ao recurso
-        recursoRepository.save(recurso); // Salva o recurso com o id da sala atualizado
+        recurso.setSala(salaSalva); 
+        recursoRepository.save(recurso);
       }
     }
-    // Retorna a sala salva com os recursos atualizados
+    
     salaSalva.setRecursos(sala.getRecursos());
     return salaSalva;
   }
