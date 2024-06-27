@@ -1,8 +1,19 @@
 package medplanner.service;
 
-import medplanner.model.Ala;
-import medplanner.repository.AlaRepository;
-import medplanner.services.AlaService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,12 +22,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import medplanner.model.Ala;
+import medplanner.repository.AlaRepository;
+import medplanner.services.AlaService;
 
 public class AlaServiceTest {
 
@@ -38,7 +46,6 @@ public class AlaServiceTest {
         ala.setIdAla(1L);
         ala.setNome("Ala Norte");
         ala.setSigla("AN");
-        ala.setAndar(1);
     }
 
     @Test
@@ -100,13 +107,11 @@ public class AlaServiceTest {
         Ala updatedAlaDetails = new Ala();
         updatedAlaDetails.setNome("Updated Test Ala");
         updatedAlaDetails.setSigla("UTS");
-        updatedAlaDetails.setAndar(2);
 
         when(alaRepository.save(any(Ala.class))).thenReturn(updatedAlaDetails);
         Ala updatedAla = alaService.updateAla(updatedAlaDetails, ala);
         assertNotNull(updatedAla);
         assertEquals("Updated Test Ala", updatedAla.getNome());
         assertEquals("UTS", updatedAla.getSigla());
-        assertEquals(2, updatedAla.getAndar());
     }
 }
