@@ -6,10 +6,12 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -41,14 +43,13 @@ public class Sala {
     @Size(max = 50, message = "O nome da sala deve ter no máximo 50 caracteres")
     private String nomeSala;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_ala")
+    private Ala ala;
 
-     @OneToOne
-     @JoinColumn(name="id_ala")
-     private Ala idAla;
-
-     @Column()
-     @Nonnull()
-     private Integer andar;
+    @Column()
+    @Nonnull()
+    private Integer andar;
 
     /**
      * A - Ativo

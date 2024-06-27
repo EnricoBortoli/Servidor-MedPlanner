@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of="id_ala")
+@EqualsAndHashCode(of = "idAla")
 public class Ala {
 
     @Id
@@ -37,7 +37,7 @@ public class Ala {
     @NotEmpty(message = "A sigla da Ala é obrigatório!")
     private String sigla;
 
-//   @Column()
-//  private Integer andar;
+    // @Column()
+    // private Integer andar;
 
 }

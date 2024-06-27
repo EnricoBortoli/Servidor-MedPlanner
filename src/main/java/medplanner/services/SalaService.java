@@ -42,7 +42,7 @@ public class SalaService {
   }
 
   public List<Sala> buscarSalasPorAndar(Integer andar) {
-      return salaRepository.findByAndar(andar);
+    return salaRepository.findByAndar(andar);
   }
 
   public Sala salvarSala(Sala sala) {
@@ -51,11 +51,11 @@ public class SalaService {
 
     if (sala.getRecursos() != null) {
       for (Recurso recurso : sala.getRecursos()) {
-        recurso.setSala(salaSalva); 
+        recurso.setSala(salaSalva);
         recursoRepository.save(recurso);
       }
     }
-    
+
     salaSalva.setRecursos(sala.getRecursos());
     return salaSalva;
   }

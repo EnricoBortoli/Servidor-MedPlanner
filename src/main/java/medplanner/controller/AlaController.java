@@ -41,7 +41,7 @@ public class AlaController {
         }
     }
 
-    @GetMapping("/listar")
+    @GetMapping("/buscar")
     public List<Ala> listarAlas() {
         return alaService.getAllAlas();
     }

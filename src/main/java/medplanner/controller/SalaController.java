@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
+import medplanner.model.Ala;
 import medplanner.model.Sala;
+import medplanner.services.AlaService;
 import medplanner.services.SalaService;
 
 @RestController
@@ -36,11 +39,13 @@ public class SalaController {
     private SalaService salaService;
 
     @Autowired
+    private AlaService alaService;
+
+    @Autowired
     private CustomExceptionHandler customExceptionHandler;
 
     @GetMapping("/buscar")
     public ResponseEntity<?> buscarSalas(@RequestParam Map<String, String> parametros) {
-        // Use the service methods to handle the business logic
         if (parametros.isEmpty()) {
             return ResponseEntity.ok(salaService.buscarTodasSalas());
         }
@@ -106,8 +111,15 @@ public class SalaController {
         }
 
         try {
-            Sala savedSala = salaService.salvarSala(sala);
-            return ResponseEntity.ok(savedSala);
+            Optional<Ala> optionalAla = alaService.getAlaById(sala.getAla().getIdAla());
+            if (optionalAla.isPresent()) {
+                Ala ala = optionalAla.get();
+                sala.setAla(ala);
+                Sala savedSala = salaService.salvarSala(sala);
+                return ResponseEntity.ok(savedSala);
+            } else {
+                return ResponseEntity.badRequest().body("Ala não encontrada com o ID fornecido.");
+            }
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
         }
