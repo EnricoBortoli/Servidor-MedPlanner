@@ -19,7 +19,7 @@ import medplanner.model.Ala;
 import medplanner.services.AlaService;
 
 @RestController
-@RequestMapping("ala")
+@RequestMapping("/ala")
 public class AlaController {
 
     @Autowired
