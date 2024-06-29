@@ -28,7 +28,7 @@ public class LocacaoService {
     @Autowired
     private AlaRepository alaRepository;
 
-    public Locacao salvarLocacaoGeral(Usuario usuario, LocacaoDTO locacaoDetails) {
+    public Locacao salvarLocacao(Usuario usuario, LocacaoDTO locacaoDetails) {
         LocalDateTime horaAtual = LocalDateTime.now();
 
         if (locacaoDetails.getHoraInicio().isBefore(horaAtual) || locacaoDetails.getHoraFinal().isBefore(horaAtual)) {
@@ -50,14 +50,19 @@ public class LocacaoService {
         return locacaoRepository.save(locacao);
     }
 
-    public Locacao salvarLocacao(Long usuarioId, LocacaoDTO locacaoDetails) {
+    public Locacao verificarUsuarioAntesDeSalvar(Long usuarioId, LocacaoDTO locacaoDetails) {
+        Usuario user;
         if (usuarioId == null) {
-            Usuario currentUser = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return salvarLocacaoGeral(currentUser, locacaoDetails);
+            user = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         } else {
-            Usuario user = usuarioRepository.findById(usuarioId).orElseThrow();
-            return salvarLocacaoGeral(user, locacaoDetails);
+            user = usuarioRepository.findById(usuarioId).orElseThrow();
         }
+
+        if (!"MEDICO".equals(user.getCargo())) {
+            throw new IllegalArgumentException("Locação de sala apenas para médicos!");
+        }
+
+        return salvarLocacao(user, locacaoDetails);
     }
 
     public Locacao atualizarLocacao(Long idMedico, LocacaoDTO locacaoDetails) {
@@ -78,8 +83,14 @@ public class LocacaoService {
                 locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
             throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
         }
+        Usuario usuario = usuarioRepository.findById(idMedico)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
 
-        locacao.setUsuario(usuarioRepository.findById(idMedico).orElseThrow());
+        if (!"MEDICO".equals(usuario.getCargo())) {
+            throw new IllegalArgumentException("Locação de sala apenas para médicos!");
+        }
+
+        locacao.setUsuario(usuario);
         locacao.setAla(alaRepository.findById(locacaoDetails.getAla()).orElseThrow());
         locacao.setSala(salaRepository.findById(locacaoDetails.getSala()).orElseThrow());
         locacao.setDia(locacaoDetails.getDia());
