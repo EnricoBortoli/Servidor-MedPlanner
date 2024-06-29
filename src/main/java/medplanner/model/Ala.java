@@ -36,8 +36,4 @@ public class Ala {
     @Size(max = 3, message = "A sigla deve ter no máximo 3 caracteres!")
     @NotEmpty(message = "A sigla da Ala é obrigatório!")
     private String sigla;
-
-    // @Column()
-    // private Integer andar;
-
 }

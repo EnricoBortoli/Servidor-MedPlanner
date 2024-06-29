@@ -35,10 +35,10 @@ INSERT INTO medplanner.ala (nome, sigla) VALUES
    ("Ala Norte", "AN");
 
 -- Inserção de dados na tabela sala
-INSERT INTO medplanner.sala (nome_sala, situacao, id_ala) values
-    ("Consultório médico 1", "A", 1);
+INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) values
+    ("Consultório médico 1", "A", 1, 1);
 
-INSERT INTO medplanner.locacao (hora_inicio, data, hora_final, id_usuario, id_sala, id_ala) VALUES
+INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES
     ('2024-07-01 08:00:00', '2024-07-01', '2024-07-01 09:00:00', 2, 1, 1);
 
     -- Inserção de dados na tabela recursos

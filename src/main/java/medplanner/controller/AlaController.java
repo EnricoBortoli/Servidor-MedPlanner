@@ -41,7 +41,7 @@ public class AlaController {
         }
     }
 
-    @GetMapping("/buscar")
+    @GetMapping("/listar")
     public List<Ala> listarAlas() {
         return alaService.getAllAlas();
     }
@@ -49,6 +49,15 @@ public class AlaController {
     @GetMapping("/buscar/{id}")
     public ResponseEntity<Ala> buscarAlaById(@PathVariable Long id) {
         Optional<Ala> ala = alaService.getAlaById(id);
+        if (ala.isPresent()) {
+            return ResponseEntity.ok(ala.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @GetMapping("/buscar/nome/{nome}")
+    public ResponseEntity<Ala> buscarAlaByNome(@PathVariable String nome) {
+        Optional<Ala> ala = alaService.findByNome(nome);
         if (ala.isPresent()) {
             return ResponseEntity.ok(ala.get());
         } else {
