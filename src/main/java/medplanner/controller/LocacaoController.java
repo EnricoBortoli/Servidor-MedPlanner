@@ -28,7 +28,7 @@ public class LocacaoController {
         try {
             Locacao locacao;
             if (locacaoDetails.getIdLocacao() == null) {
-                locacao = locacaoService.salvarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
+                locacao = locacaoService.verificarUsuarioAntesDeSalvar(locacaoDetails.getIdUsuario(), locacaoDetails);
             } else {
                 locacao = locacaoService.atualizarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
             }
