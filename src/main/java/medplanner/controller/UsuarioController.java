@@ -183,4 +183,36 @@ public class UsuarioController {
         String body = "Olá " + name + ",\n\nSua nova senha é: " + password;
         emailService.sendEmail(email, subject, body);
     }
+
+    @GetMapping("/minha-conta")
+public ResponseEntity<Usuario> minhaConta(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails instanceof Usuario) {
+        Usuario usuario = (Usuario) userDetails;
+        return ResponseEntity.ok(usuario);
+    }
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+}
+
+@PostMapping("/alterar-senha")
+public ResponseEntity<?> alterarSenha(@RequestParam String novaSenha, @AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails instanceof Usuario) {
+        Usuario usuario = (Usuario) userDetails;
+        String senhaCriptografada = new BCryptPasswordEncoder().encode(novaSenha);
+        usuario.setPassword(senhaCriptografada);
+        usuarioRepository.save(usuario);
+        return ResponseEntity.ok("Senha alterada com sucesso");
+    }
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+}
+
+@DeleteMapping("/excluir-conta")
+public ResponseEntity<?> excluirConta(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails instanceof Usuario) {
+        Usuario usuario = (Usuario) userDetails;
+        usuarioRepository.delete(usuario);
+        return ResponseEntity.ok("Conta excluída com sucesso");
+    }
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+}
+
 }
