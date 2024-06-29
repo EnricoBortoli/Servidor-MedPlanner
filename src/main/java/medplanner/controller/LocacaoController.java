@@ -2,8 +2,6 @@ package medplanner.controller;
 
 import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
-import medplanner.repository.LocacaoRepository;
-import medplanner.model.Locacao;
 import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +28,7 @@ public class LocacaoController {
         try {
             Locacao locacao;
             if (locacaoDetails.getIdLocacao() == null) {
-                if (locacaoDetails.getIdUsuario() == null) {
-                    locacao = locacaoService.salvarLocacao(locacaoDetails);
-                } else {
-                    locacao = locacaoService.salvarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
-                }
+                locacao = locacaoService.salvarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
             } else {
                 locacao = locacaoService.atualizarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
             }
