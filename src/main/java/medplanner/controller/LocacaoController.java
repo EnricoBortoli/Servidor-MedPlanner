@@ -44,21 +44,21 @@ public class LocacaoController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<?> buscarLocacao(@RequestBody Map<String, String> parametros) {
+    public ResponseEntity buscarLocacao(@RequestParam Map<String, String> parametros) {
         if (parametros.isEmpty()) {
             return ResponseEntity.ok().body(locacaoService.listarLocacoes());
         }
-        if (parametros.containsKey("id")) {
+        if (parametros.get("id") != null) {
             Optional<Locacao> locacao = locacaoService
                     .buscarLocacaoById(Long.parseLong(parametros.get("id")));
             return ResponseEntity.ok().body(locacao);
         }
-        if (parametros.containsKey("sala")) {
+        if (parametros.get("sala") != null) {
             List<Locacao> locacao = locacaoService
                     .findBySala(parametros.get("sala"));
             return ResponseEntity.ok().body(locacao);
         }
-        if (parametros.containsKey("medico")) {
+        if (parametros.get("medico") != null) {
             List<Locacao> locacao = locacaoService
                     .findByMedico(parametros.get("medico"));
             return ResponseEntity.ok().body(locacao);
