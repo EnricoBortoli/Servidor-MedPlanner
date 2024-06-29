@@ -28,10 +28,10 @@ public class LocacaoService {
     private AlaRepository alaRepository;
 
     public Locacao salvarLocacaoGeral(Usuario usuario, LocacaoDTO locacaoDetails) {
-//        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
-//                locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
-//            throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
-//        }
+        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
+                locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
+            throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+        }
 
         Locacao locacao = new Locacao();
         locacao.setUsuario(usuario);
@@ -61,10 +61,10 @@ public class LocacaoService {
 
         Locacao locacao = locacaoOptional.get();
 
-//        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(),
-//                locacaoDetails.getHoraInicio(), locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
-//            throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
-//        }
+        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
+                locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
+            throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+        }
 
         locacao.setUsuario(usuarioRepository.findById(idMedico).orElseThrow());
         locacao.setAla(alaRepository.findById(locacaoDetails.getAla()).orElseThrow());

@@ -12,8 +12,8 @@ import java.util.Date;
 @Repository
 public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
 
-    @Query("select 1 from Locacao l where l.horaInicio <= :horaFinal and l.horaFinal >= :horaInicio and l.sala = :idsala and l.dia = :data")
-    boolean existeDataHoraMarcadaNaSala(Long idsala, LocalDateTime horaInicio, LocalDateTime horaFinal, Date data);
+    @Query("select count(l) > 0 from Locacao l where l.horaInicio <= :horaFinal and l.horaFinal >= :horaInicio and l.sala.id = :idsala and l.dia = :dia")
+    boolean existeDataHoraMarcadaNaSala(Long idsala, LocalDateTime horaInicio, LocalDateTime horaFinal, Date dia);
 
     @Query("SELECT l FROM Locacao l WHERE l.sala.idSala = :salaId AND l.horaInicio >= :dataInicio AND l.horaFinal <= :dataFim")
     List<Locacao> findBySalaIdAndPeriodo(Long salaId, LocalDateTime dataInicio, LocalDateTime dataFim);
