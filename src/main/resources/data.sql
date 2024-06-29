@@ -33,6 +33,12 @@ INSERT INTO medplanner.profissional (id_usuario, num_Crm, uf_Crm, id_especialida
 -- Inserção de dados na tabela ala
 INSERT INTO medplanner.ala (nome, sigla) VALUES
    ("Ala Norte", "AN");
+INSERT INTO medplanner.ala (nome, sigla) VALUES
+    ("Ala Sul", "AS");
+INSERT INTO medplanner.ala (nome, sigla) VALUES
+    ("Ala Leste", "AL");
+INSERT INTO medplanner.ala (nome, sigla) VALUES
+    ("Ala Oeste", "AO");
 
 -- Inserção de dados na tabela sala
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) values
