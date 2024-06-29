@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,12 @@ public class LocacaoService {
     private AlaRepository alaRepository;
 
     public Locacao salvarLocacaoGeral(Usuario usuario, LocacaoDTO locacaoDetails) {
+        LocalDateTime horaAtual = LocalDateTime.now();
+
+        if (locacaoDetails.getHoraInicio().isBefore(horaAtual) || locacaoDetails.getHoraFinal().isBefore(horaAtual)) {
+            throw new IllegalArgumentException("Não é possível agendar uma locação com data ou hora anterior à atual.");
+        }
+
         if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
                 locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
             throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
@@ -54,6 +61,12 @@ public class LocacaoService {
     }
 
     public Locacao atualizarLocacao(Long idMedico, LocacaoDTO locacaoDetails) {
+        LocalDateTime horaAtual = LocalDateTime.now();
+
+        if (locacaoDetails.getHoraInicio().isBefore(horaAtual) || locacaoDetails.getHoraFinal().isBefore(horaAtual)) {
+            throw new IllegalArgumentException("Não é possível agendar uma locação com data ou hora anterior à atual.");
+        }
+
         Optional<Locacao> locacaoOptional = locacaoRepository.findById(locacaoDetails.getIdLocacao());
         if (!locacaoOptional.isPresent()) {
             throw new IllegalArgumentException("Locação não encontrada!");
