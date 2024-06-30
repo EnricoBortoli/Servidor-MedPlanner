@@ -58,7 +58,7 @@ public class LocacaoService {
             user = usuarioRepository.findById(usuarioId).orElseThrow();
         }
 
-        if (!"MEDICO".equals(user.getCargo())) {
+        if (!"MEDICO".equals(user.getCargo().name())) {
             throw new IllegalArgumentException("Locação de sala apenas para médicos!");
         }
 
