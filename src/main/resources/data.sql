@@ -46,6 +46,8 @@ INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) values
 
 INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES
     ('2024-07-01 08:00:00', '2024-07-01', '2024-07-01 09:00:00', 2, 1, 1);
+INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES
+    ('2024-06-28 10:00:00', '2024-06-28', '2024-06-28 12:00:00', 2, 1, 1);
 
     -- Inserção de dados na tabela recursos
 INSERT INTO medplanner.recursos (id_sala, descricao, nome_recurso) VALUES

@@ -4,11 +4,13 @@ import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
 import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +38,13 @@ public class LocacaoController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/listar/{dia}")
+    public ResponseEntity<List<Locacao>> listarLocacoesPorDia(
+            @PathVariable @DateTimeFormat(pattern = "dd-MM-yyyy") Date dia) {
+        List<Locacao> locacoes = locacaoService.listarLocacoesPorDia(dia);
+        return ResponseEntity.ok(locacoes);
     }
 
     @GetMapping("/listar")
