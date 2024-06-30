@@ -105,13 +105,13 @@ public class AlaServiceTest {
     @Test
     public void testUpdateAla() {
         Ala updatedAlaDetails = new Ala();
-        updatedAlaDetails.setNome("Updated Test Ala");
-        updatedAlaDetails.setSigla("UTS");
+        updatedAlaDetails.setNome("Ala TESTE");
+        updatedAlaDetails.setSigla("AT");
 
         when(alaRepository.save(any(Ala.class))).thenReturn(updatedAlaDetails);
         Ala updatedAla = alaService.updateAla(updatedAlaDetails, ala);
         assertNotNull(updatedAla);
-        assertEquals("Updated Test Ala", updatedAla.getNome());
-        assertEquals("UTS", updatedAla.getSigla());
+        assertEquals("Ala TESTE", updatedAla.getNome());
+        assertEquals("AT", updatedAla.getSigla());
     }
 }
