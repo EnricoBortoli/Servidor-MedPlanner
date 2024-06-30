@@ -8,6 +8,7 @@ import medplanner.repository.LocacaoRepository;
 import medplanner.repository.SalaRepository;
 import medplanner.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -120,6 +121,15 @@ public class LocacaoService {
         Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
         if (!locacaoOptional.isPresent()) {
             throw new IllegalArgumentException("Locação não encontrada!");
+        }
+        Locacao locacao = locacaoOptional.get();
+        Date hoje = new Date();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && locacao.getDia().before(hoje)) {
+            throw new IllegalArgumentException("Apenas administradores podem deletar locações de datas anteriores.");
         }
 
         locacaoRepository.delete(locacaoOptional.get());
