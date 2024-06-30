@@ -1,10 +1,8 @@
 package medplanner.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
-import medplanner.model.Ala;
 import medplanner.model.Sala;
-import medplanner.services.AlaService;
 import medplanner.services.SalaService;
 
 @RestController
@@ -37,9 +33,6 @@ public class SalaController {
 
     @Autowired
     private SalaService salaService;
-
-    @Autowired
-    private AlaService alaService;
 
     @Autowired
     private CustomExceptionHandler customExceptionHandler;
@@ -63,8 +56,18 @@ public class SalaController {
             String nomeSala = parametros.get("nomeSala");
             return ResponseEntity.ok(salaService.buscarSalasPorNome(nomeSala));
         }
+        if (parametros.containsKey("situacao") && parametros.containsKey("idAla")) {
+            try {
+                Long idAla = Long.parseLong(parametros.get("idAla"));
+                String situacao = parametros.get("situacao");
+                return ResponseEntity.ok(salaService.buscarSalasPorAlaESituacao(idAla, situacao));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Os parâmetros idAla e situacao devem ser válidos.");
+            }
+        }
         if (parametros.containsKey("situacao")) {
-            return ResponseEntity.ok(salaService.buscarSalasPorSituacao(parametros.get("situacao")));
+            String situacao = parametros.get("situacao");
+            return ResponseEntity.ok(salaService.buscarSalasPorSituacao(situacao));
         }
         if (parametros.containsKey("idAla")) {
             try {
@@ -72,14 +75,6 @@ public class SalaController {
                 return ResponseEntity.ok(salaService.buscarSalasPorAla(idAla));
             } catch (NumberFormatException e) {
                 return ResponseEntity.badRequest().body("O parâmetro idAla deve ser um número.");
-            }
-        }
-        if (parametros.containsKey("andar")) {
-            try {
-                Integer andar = Integer.parseInt(parametros.get("andar"));
-                return ResponseEntity.ok(salaService.buscarSalasPorAndar(andar));
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body("O parâmetro andar deve ser um número.");
             }
         }
         return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos.");
@@ -97,29 +92,18 @@ public class SalaController {
                     .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem cadastrar novas salas.");
         }
 
-        List<String> errors = new ArrayList<>();
-
         if (result.hasErrors()) {
-            errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.toList()));
-        }
-
-        if (!errors.isEmpty()) {
+            List<String> errors = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
             Map<String, List<String>> errorResponse = new HashMap<>();
             errorResponse.put("errors", errors);
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
         try {
-            Optional<Ala> optionalAla = alaService.getAlaById(sala.getAla().getIdAla());
-            if (optionalAla.isPresent()) {
-                Ala ala = optionalAla.get();
-                sala.setAla(ala);
-                Sala savedSala = salaService.salvarSala(sala);
-                return ResponseEntity.ok(savedSala);
-            } else {
-                return ResponseEntity.badRequest().body("Ala não encontrada com o ID fornecido.");
-            }
+            Sala savedSala = salaService.salvarSala(sala);
+            return ResponseEntity.ok(savedSala);
         } catch (DataIntegrityViolationException e) {
             return customExceptionHandler.handleDataIntegrityExceptions(e);
         }
