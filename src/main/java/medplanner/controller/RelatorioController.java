@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -23,18 +23,18 @@ public class RelatorioController {
     @GetMapping("/medicos-por-sala")
     public ResponseEntity<List<RelatorioDTO>> getMedicosPorSala(
             @RequestParam Long salaId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
-        List<RelatorioDTO> relatorio = relatorioService.medicosPorSala(salaId, dataInicio, dataFim);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        List<RelatorioDTO> relatorio = relatorioService.medicosPorSala(salaId, dataInicio.atStartOfDay(), dataFim.atStartOfDay().plusDays(1));
         return ResponseEntity.ok(relatorio);
     }
 
     @GetMapping("/salas-por-medico")
     public ResponseEntity<List<RelatorioDTO>> getSalasPorMedico(
             @RequestParam Long medicoId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
-        List<RelatorioDTO> relatorio = relatorioService.salasPorMedico(medicoId, dataInicio, dataFim);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+        List<RelatorioDTO> relatorio = relatorioService.salasPorMedico(medicoId, dataInicio.atStartOfDay(), dataFim.atStartOfDay().plusDays(1));
         return ResponseEntity.ok(relatorio);
     }
 }

@@ -18,7 +18,7 @@ INSERT INTO medplanner.usuario (nome, cpf, username, password, cargo, situacao) 
 
 -- Inserção de usuários profissionais
 INSERT INTO medplanner.usuario (nome, cpf, username, password, cargo, situacao) VALUES
-    ("Dr. João Silva", "12345678901", "joao.silva@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
+    ("Dr. Bruno Silva", "12345678901", "bruno.silva@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
     ("Dr. Maria Oliveira", "23456789012", "maria.oliveira@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
     ("Dr. Carlos Pereira", "34567890123", "carlos.pereira@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A");
 
@@ -42,7 +42,7 @@ INSERT INTO medplanner.ala (nome, sigla) VALUES
 
 -- Inserção de dados na tabela sala
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) values
-    ("Consultório médico 1", "A", 1, 1);
+    ("Sala de atendimento 1", "A", 1, 1);
 
 INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES
     ('2024-07-01 08:00:00', '2024-07-01', '2024-07-01 09:00:00', 2, 1, 1);
