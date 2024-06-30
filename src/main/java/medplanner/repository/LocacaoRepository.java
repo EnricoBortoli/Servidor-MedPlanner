@@ -27,4 +27,6 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
     @Query(value = "SELECT * FROM Locacao l WHERE CAST(l.id_sala AS char) LIKE ?1%", nativeQuery = true)
     List<Locacao> findBySala(String idSala);
 
+    @Query("SELECT l FROM Locacao l WHERE l.dia = :dia")
+    List<Locacao> findByData(Date dia);
 }
