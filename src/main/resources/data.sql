@@ -44,23 +44,12 @@ INSERT INTO medplanner.ala (nome, sigla) VALUES
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) values
     ("Sala de atendimento 1", "A", 1, 1);
 
-INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES
-    ('2024-07-01 08:00:00', '2024-07-01', '2024-07-01 09:00:00', 2, 1, 1);
-INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES
-    ('2024-06-28 10:00:00', '2024-06-28', '2024-06-28 12:00:00', 2, 1, 1);
-
     -- Inserção de dados na tabela recursos
 INSERT INTO medplanner.recursos (id_sala, descricao, nome_recurso) VALUES
     (1, "Maca", "Maca de aço inoxidavel tamanho grande"),
     (1, "Esfigmomanômetro", "Equipamento Médico");
 
 
-    -- Inserção de dados na tabela ala
-INSERT INTO medplanner.ala (nome, sigla) VALUES
-    ("Ala Norte", "AN"),
-    ("Ala Sul", "AS"),
-    ("Ala Leste", "AL"),
-    ("Ala Oeste", "AO");
 
 -- Inserção de dados na tabela sala
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) VALUES
