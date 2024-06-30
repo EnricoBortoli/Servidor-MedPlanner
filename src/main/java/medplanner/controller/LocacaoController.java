@@ -2,8 +2,6 @@ package medplanner.controller;
 
 import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
-import medplanner.repository.LocacaoRepository;
-import medplanner.model.Locacao;
 import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +28,7 @@ public class LocacaoController {
         try {
             Locacao locacao;
             if (locacaoDetails.getIdLocacao() == null) {
-                if (locacaoDetails.getIdUsuario() == null) {
-                    locacao = locacaoService.salvarLocacao(locacaoDetails);
-                } else {
-                    locacao = locacaoService.salvarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
-                }
+                locacao = locacaoService.verificarUsuarioAntesDeSalvar(locacaoDetails.getIdUsuario(), locacaoDetails);
             } else {
                 locacao = locacaoService.atualizarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
             }
@@ -50,21 +44,21 @@ public class LocacaoController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<?> buscarLocacao(@RequestBody Map<String, String> parametros) {
+    public ResponseEntity buscarLocacao(@RequestParam Map<String, String> parametros) {
         if (parametros.isEmpty()) {
             return ResponseEntity.ok().body(locacaoService.listarLocacoes());
         }
-        if (parametros.containsKey("id")) {
+        if (parametros.get("id") != null) {
             Optional<Locacao> locacao = locacaoService
                     .buscarLocacaoById(Long.parseLong(parametros.get("id")));
             return ResponseEntity.ok().body(locacao);
         }
-        if (parametros.containsKey("sala")) {
+        if (parametros.get("sala") != null) {
             List<Locacao> locacao = locacaoService
                     .findBySala(parametros.get("sala"));
             return ResponseEntity.ok().body(locacao);
         }
-        if (parametros.containsKey("medico")) {
+        if (parametros.get("medico") != null) {
             List<Locacao> locacao = locacaoService
                     .findByMedico(parametros.get("medico"));
             return ResponseEntity.ok().body(locacao);

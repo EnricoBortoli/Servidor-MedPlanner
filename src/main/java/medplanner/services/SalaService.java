@@ -41,6 +41,10 @@ public class SalaService {
     return salaRepository.findByAla(idAla);
   }
 
+  public List<Sala> buscarSalasPorAlaESituacao(Long idAla, String situacao) {
+    return salaRepository.findByAlaAndSituacao(idAla, situacao);
+  }
+
   public List<Sala> buscarSalasPorAndar(Integer andar) {
     return salaRepository.findByAndar(andar);
   }
