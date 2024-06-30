@@ -194,25 +194,52 @@ public ResponseEntity<Usuario> minhaConta(@AuthenticationPrincipal UserDetails u
 }
 
 @PostMapping("/alterar-senha")
-public ResponseEntity<?> alterarSenha(@RequestParam String novaSenha, @AuthenticationPrincipal UserDetails userDetails) {
+public ResponseEntity<?> alterarSenha(@RequestBody Map<String, String> senhas, @AuthenticationPrincipal UserDetails userDetails) {
     if (userDetails instanceof Usuario) {
         Usuario usuario = (Usuario) userDetails;
-        String senhaCriptografada = new BCryptPasswordEncoder().encode(novaSenha);
-        usuario.setPassword(senhaCriptografada);
-        usuarioRepository.save(usuario);
-        return ResponseEntity.ok("Senha alterada com sucesso");
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        
+        String senhaAntiga = senhas.get("senhaAntiga");
+        String novaSenha = senhas.get("novaSenha");
+        
+        if (senhaAntiga == null || novaSenha == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Senhas não fornecidas");
+        }
+        
+        if (!encoder.matches(senhaAntiga, usuario.getPassword())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Senha antiga incorreta.");
+        }
+
+        System.out.println("Alterando senha para o usuário: " + usuario.getUsername());
+        System.out.println("Usuário ID: " + usuario.getIdUsuario());
+
+        usuario.setPassword(encoder.encode(novaSenha));
+        
+        if (usuario.getUsername() == null || !usuario.getUsername().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            System.out.println("Username inválido: " + usuario.getUsername());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username inválido.");
+        }
+
+        try {
+            usuarioRepository.save(usuario);
+            return ResponseEntity.ok("Senha alterada com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao alterar senha: " + e.getMessage());
+        }
     }
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado!");
 }
+
 
 @DeleteMapping("/excluir-conta")
 public ResponseEntity<?> excluirConta(@AuthenticationPrincipal UserDetails userDetails) {
     if (userDetails instanceof Usuario) {
         Usuario usuario = (Usuario) userDetails;
         usuarioRepository.delete(usuario);
-        return ResponseEntity.ok("Conta excluída com sucesso");
+        return ResponseEntity.ok("Conta excluída com sucesso!");
     }
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado!");
 }
 
 }

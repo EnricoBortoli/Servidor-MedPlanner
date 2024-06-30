@@ -1,6 +1,7 @@
 package medplanner.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Usuario findByCPF(String cpf);
 
     UserDetails findByUsername(String username);
+
+    Optional<Usuario> findById(Long id);
 }

@@ -14,13 +14,13 @@ INSERT INTO medplanner.especialidade (nome, sigla) VALUES
 
 -- Inclusão de um usuário administrador padrão
 INSERT INTO medplanner.usuario (nome, cpf, username, password, cargo, situacao) VALUES 
-    ("Administrador do sistema", "11122233344", "admin", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'ADMINISTRADOR', "A");
+    ("Administrador do sistema", "11122233344", "admin@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'ADMINISTRADOR', "A");
 
 -- Inserção de usuários profissionais
 INSERT INTO medplanner.usuario (nome, cpf, username, password, cargo, situacao) VALUES
-    ("Dr. João Silva", "12345678901", "joao.silva", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
-    ("Dr. Maria Oliveira", "23456789012", "maria.oliveira", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
-    ("Dr. Carlos Pereira", "34567890123", "carlos.pereira", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A");
+    ("Dr. João Silva", "12345678901", "joao.silva@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
+    ("Dr. Maria Oliveira", "23456789012", "maria.oliveira@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A"),
+    ("Dr. Carlos Pereira", "34567890123", "carlos.pereira@gmail.com", "$2a$10$OhNEEv7/DKkVbfolC5iWc.ZTBUh6Z2wuSvQsB8NmmyBO5kxbgA2y.", 'MEDICO', "A");
 
 -- Inserção de dados na tabela profissional
 -- Assumindo que os IDs de especialidade são conhecidos e correspondentes
