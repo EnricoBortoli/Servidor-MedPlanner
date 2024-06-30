@@ -126,7 +126,7 @@ public class UsuarioController {
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarUsuario(@PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
         }
