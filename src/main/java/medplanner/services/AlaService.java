@@ -54,7 +54,12 @@ public class AlaService {
     public Optional<Ala> getAlaById(Long id) {
         return alaRepository.findById(id);
     }
-
+    public Optional<Ala> findByNome(String nome) {
+        return alaRepository.findByNome(nome);
+    }
+    public List<Ala> getAllAlasOrderedByName() {
+        return alaRepository.findAllByOrderByNome();
+    }
     public List<Ala> getAllAlas() {
         return alaRepository.findAll();
     }

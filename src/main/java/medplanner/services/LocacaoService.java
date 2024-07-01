@@ -2,12 +2,19 @@ package medplanner.services;
 
 import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
+import medplanner.model.Usuario;
+import medplanner.repository.AlaRepository;
 import medplanner.repository.LocacaoRepository;
-import org.springframework.beans.BeanUtils;
+import medplanner.repository.SalaRepository;
+import medplanner.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,33 +23,81 @@ public class LocacaoService {
 
     @Autowired
     private LocacaoRepository locacaoRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    @Autowired
+    private SalaRepository salaRepository;
+    @Autowired
+    private AlaRepository alaRepository;
 
-    public Locacao salvarLocacao(LocacaoDTO locacaoDetails) {
+    public Locacao salvarLocacao(Usuario usuario, LocacaoDTO locacaoDetails) {
+        LocalDateTime horaAtual = LocalDateTime.now();
+
+        if (locacaoDetails.getHoraInicio().isBefore(horaAtual) || locacaoDetails.getHoraFinal().isBefore(horaAtual)) {
+            throw new IllegalArgumentException("Não é possível agendar uma locação com data ou hora anterior à atual.");
+        }
+
         if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
-                locacaoDetails.getHoraFinal(), locacaoDetails.getData())) {
+                locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
             throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
         }
 
         Locacao locacao = new Locacao();
-        BeanUtils.copyProperties(locacaoDetails, locacao);
+        locacao.setUsuario(usuario);
+        locacao.setAla(alaRepository.findById(locacaoDetails.getAla()).orElseThrow());
+        locacao.setSala(salaRepository.findById(locacaoDetails.getSala()).orElseThrow());
+        locacao.setDia(locacaoDetails.getDia());
+        locacao.setHoraInicio(locacaoDetails.getHoraInicio());
+        locacao.setHoraFinal(locacaoDetails.getHoraFinal());
         return locacaoRepository.save(locacao);
     }
 
-    public Locacao atualizarLocacao(Long id, LocacaoDTO locacaoDetails) {
-        Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
+    public Locacao verificarUsuarioAntesDeSalvar(Long usuarioId, LocacaoDTO locacaoDetails) {
+        Usuario user;
+        if (usuarioId == null) {
+            user = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } else {
+            user = usuarioRepository.findById(usuarioId).orElseThrow();
+        }
+
+        if (!"MEDICO".equals(user.getCargo().name())) {
+            throw new IllegalArgumentException("Locação de sala apenas para médicos!");
+        }
+
+        return salvarLocacao(user, locacaoDetails);
+    }
+
+    public Locacao atualizarLocacao(Long idMedico, LocacaoDTO locacaoDetails) {
+        LocalDateTime horaAtual = LocalDateTime.now();
+
+        if (locacaoDetails.getHoraInicio().isBefore(horaAtual) || locacaoDetails.getHoraFinal().isBefore(horaAtual)) {
+            throw new IllegalArgumentException("Não é possível agendar uma locação com data ou hora anterior à atual.");
+        }
+
+        Optional<Locacao> locacaoOptional = locacaoRepository.findById(locacaoDetails.getIdLocacao());
         if (!locacaoOptional.isPresent()) {
             throw new IllegalArgumentException("Locação não encontrada!");
         }
 
         Locacao locacao = locacaoOptional.get();
 
-        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacao.getIdLocacao(), locacaoDetails.getSala(),
-                locacaoDetails.getHoraInicio(), locacaoDetails.getHoraFinal(), locacaoDetails.getData())) {
+        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
+                locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
             throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
         }
+        Usuario usuario = usuarioRepository.findById(idMedico)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
 
-        BeanUtils.copyProperties(locacaoDetails, locacao);
+        if (!"MEDICO".equals(usuario.getCargo().name())) {
+            throw new IllegalArgumentException("Locação de sala apenas para médicos!");
+        }
 
+        locacao.setUsuario(usuario);
+        locacao.setAla(alaRepository.findById(locacaoDetails.getAla()).orElseThrow());
+        locacao.setSala(salaRepository.findById(locacaoDetails.getSala()).orElseThrow());
+        locacao.setDia(locacaoDetails.getDia());
+        locacao.setHoraInicio(locacaoDetails.getHoraInicio());
+        locacao.setHoraFinal(locacaoDetails.getHoraFinal());
         return locacaoRepository.save(locacao);
     }
 
@@ -54,12 +109,33 @@ public class LocacaoService {
         return locacaoRepository.findById(id);
     }
 
+    public List<Locacao> findBySala(String id) {
+        return locacaoRepository.findBySala(id);
+    }
+
+    public List<Locacao> findByMedico(String id) {
+        return locacaoRepository.findByMedico(id);
+    }
+
     public void deletarLocacao(Long id) {
         Optional<Locacao> locacaoOptional = locacaoRepository.findById(id);
         if (!locacaoOptional.isPresent()) {
             throw new IllegalArgumentException("Locação não encontrada!");
         }
+        Locacao locacao = locacaoOptional.get();
+        Date hoje = new Date();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMINISTRADOR"));
+
+        if (!isAdmin && locacao.getDia().before(hoje)) {
+            throw new IllegalArgumentException("Apenas administradores podem deletar locações de datas anteriores.");
+        }
 
         locacaoRepository.delete(locacaoOptional.get());
+    }
+
+    public List<Locacao> listarLocacoesPorDia(Date dia) {
+        return locacaoRepository.findByData(dia);
     }
 }

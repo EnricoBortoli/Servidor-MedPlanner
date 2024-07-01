@@ -1,6 +1,5 @@
 package medplanner.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import medplanner.exception.CustomExceptionHandler;
 import medplanner.model.Sala;
 import medplanner.services.SalaService;
-import medplanner.exception.CustomExceptionHandler;
 
 @RestController
 @RequestMapping("/sala")
@@ -41,7 +39,6 @@ public class SalaController {
 
     @GetMapping("/buscar")
     public ResponseEntity<?> buscarSalas(@RequestParam Map<String, String> parametros) {
-        // Use the service methods to handle the business logic
         if (parametros.isEmpty()) {
             return ResponseEntity.ok(salaService.buscarTodasSalas());
         }
@@ -59,8 +56,26 @@ public class SalaController {
             String nomeSala = parametros.get("nomeSala");
             return ResponseEntity.ok(salaService.buscarSalasPorNome(nomeSala));
         }
+        if (parametros.containsKey("situacao") && parametros.containsKey("idAla")) {
+            try {
+                Long idAla = Long.parseLong(parametros.get("idAla"));
+                String situacao = parametros.get("situacao");
+                return ResponseEntity.ok(salaService.buscarSalasPorAlaESituacao(idAla, situacao));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Os parâmetros idAla e situacao devem ser válidos.");
+            }
+        }
         if (parametros.containsKey("situacao")) {
-            return ResponseEntity.ok(salaService.buscarSalasPorSituacao(parametros.get("situacao")));
+            String situacao = parametros.get("situacao");
+            return ResponseEntity.ok(salaService.buscarSalasPorSituacao(situacao));
+        }
+        if (parametros.containsKey("idAla")) {
+            try {
+                Long idAla = Long.parseLong(parametros.get("idAla"));
+                return ResponseEntity.ok(salaService.buscarSalasPorAla(idAla));
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("O parâmetro idAla deve ser um número.");
+            }
         }
         return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos.");
     }
@@ -77,14 +92,10 @@ public class SalaController {
                     .body("Apenas usuários com cargo de ADMINISTRADOR ou RECEPÇÃO podem cadastrar novas salas.");
         }
 
-        List<String> errors = new ArrayList<>();
-
         if (result.hasErrors()) {
-            errors.addAll(result.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.toList()));
-        }
-
-        if (!errors.isEmpty()) {
+            List<String> errors = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
             Map<String, List<String>> errorResponse = new HashMap<>();
             errorResponse.put("errors", errors);
             return ResponseEntity.badRequest().body(errorResponse);

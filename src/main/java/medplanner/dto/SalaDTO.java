@@ -13,4 +13,6 @@ public class SalaDTO {
 
     private String situacao;
 
+    private Integer andar;
+
 }

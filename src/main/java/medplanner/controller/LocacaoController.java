@@ -4,12 +4,15 @@ import medplanner.dto.LocacaoDTO;
 import medplanner.model.Locacao;
 import medplanner.services.LocacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -19,18 +22,17 @@ public class LocacaoController {
     @Autowired
     private LocacaoService locacaoService;
 
-
     @PostMapping("/salvar")
-    public ResponseEntity<?> atualizarLocacao(@PathVariable Long id, @Valid @RequestBody LocacaoDTO locacaoDetails, BindingResult result) {
+    public ResponseEntity<?> atualizarLocacao(@Valid @RequestBody LocacaoDTO locacaoDetails, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
         try {
             Locacao locacao;
             if (locacaoDetails.getIdLocacao() == null) {
-                locacao = locacaoService.salvarLocacao(locacaoDetails);
+                locacao = locacaoService.verificarUsuarioAntesDeSalvar(locacaoDetails.getIdUsuario(), locacaoDetails);
             } else {
-               locacao = locacaoService.atualizarLocacao(id, locacaoDetails);
+                locacao = locacaoService.atualizarLocacao(locacaoDetails.getIdUsuario(), locacaoDetails);
             }
             return ResponseEntity.ok(locacao);
         } catch (IllegalArgumentException e) {
@@ -38,16 +40,39 @@ public class LocacaoController {
         }
     }
 
+    @GetMapping("/listar/{dia}")
+    public ResponseEntity<List<Locacao>> listarLocacoesPorDia(
+            @PathVariable @DateTimeFormat(pattern = "dd-MM-yyyy") Date dia) {
+        List<Locacao> locacoes = locacaoService.listarLocacoesPorDia(dia);
+        return ResponseEntity.ok(locacoes);
+    }
+
     @GetMapping("/listar")
     public List<Locacao> listarLocacoes() {
         return locacaoService.listarLocacoes();
     }
 
-    @GetMapping("/buscar/{id}")
-    public ResponseEntity<?> buscarLocacaoById(@PathVariable Long id) {
-        Optional<Locacao> locacao = locacaoService.buscarLocacaoById(id);
-        return locacao.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/buscar")
+    public ResponseEntity buscarLocacao(@RequestParam Map<String, String> parametros) {
+        if (parametros.isEmpty()) {
+            return ResponseEntity.ok().body(locacaoService.listarLocacoes());
+        }
+        if (parametros.get("id") != null) {
+            Optional<Locacao> locacao = locacaoService
+                    .buscarLocacaoById(Long.parseLong(parametros.get("id")));
+            return ResponseEntity.ok().body(locacao);
+        }
+        if (parametros.get("sala") != null) {
+            List<Locacao> locacao = locacaoService
+                    .findBySala(parametros.get("sala"));
+            return ResponseEntity.ok().body(locacao);
+        }
+        if (parametros.get("medico") != null) {
+            List<Locacao> locacao = locacaoService
+                    .findByMedico(parametros.get("medico"));
+            return ResponseEntity.ok().body(locacao);
+        }
+        return ResponseEntity.badRequest().body("Parâmetros de pesquisa inválidos");
     }
 
     @DeleteMapping("/delete/{id}")
