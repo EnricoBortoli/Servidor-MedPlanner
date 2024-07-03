@@ -37,7 +37,7 @@ public class ProfissionalController {
     }
 
     @PostMapping("/salvar")
-    public ResponseEntity<?> salvarProfissional(@RequestBody @Valid Profissional profissional, BindingResult result,
+    public ResponseEntity<?> salvarProfissional(@RequestBody Profissional profissional, BindingResult result,
             @AuthenticationPrincipal UserDetails userDetails) {
         return profissionalService.salvarProfissional(profissional, result, userDetails);
     }
