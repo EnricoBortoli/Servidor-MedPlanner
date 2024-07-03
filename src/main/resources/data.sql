@@ -42,7 +42,7 @@ INSERT INTO medplanner.ala (nome, sigla) VALUES
 
 -- Inserção de dados na tabela sala
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) values
-    ("Sala 1", "A", 1, 1);
+    ("Sala 1", "A", 1, 1),
     ("Sala 2", "A", 1, 1),
     ("Sala 3", "A", 2, 1),
     ("Sala 4", "A", 2, 2),
