@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
+import medplanner.model.Profissional;
 import medplanner.model.Usuario;
 import medplanner.repository.UsuarioRepository;
 import medplanner.services.EmailService;
@@ -192,6 +193,7 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+
     @PostMapping("/alterar-senha")
     public ResponseEntity<?> alterarSenha(@RequestBody Map<String, String> senhas, @AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails instanceof Usuario) {
@@ -211,7 +213,15 @@ public class UsuarioController {
 
             System.out.println("Alterando senha para o usuário: " + usuario.getUsername());
             System.out.println("Usuário ID: " + usuario.getIdUsuario());
+            System.out.println("Alterando senha para o usuário: " + usuario.getUsername());
+            System.out.println("Usuário ID: " + usuario.getIdUsuario());
 
+            usuario.setPassword(encoder.encode(novaSenha));
+
+            if (usuario.getUsername() == null || !usuario.getUsername().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                System.out.println("Username inválido: " + usuario.getUsername());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username inválido.");
+            }
             usuario.setPassword(encoder.encode(novaSenha));
             
             if (usuario.getUsername() == null || !usuario.getUsername().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
@@ -240,6 +250,7 @@ public class UsuarioController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado!");
     }
+
 
     @PostMapping("/esqueciSenha")
     public ResponseEntity<String> esqueciSenha(@RequestBody String email){

@@ -1,5 +1,6 @@
 package medplanner.services;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,9 @@ public class ProfissionalService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     public List<Profissional> listarProfissionais() {
         return profissionalRepository.findAll();
@@ -87,9 +91,9 @@ public class ProfissionalService {
                 errors.add("CRM já existe.");
             }
 
-            if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
-                errors.add("CPF já existe.");
-            }
+            // if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
+            // errors.add("CPF já existe.");
+            // }
         }
 
         if (result.hasErrors()) {
@@ -101,6 +105,12 @@ public class ProfissionalService {
             Map<String, List<String>> errorResponse = new HashMap<>();
             errorResponse.put("errors", errors);
             return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        if (usuario.getSituacao().equals("E")/* && usuario.getPassword() == null */) {
+            usuario.setPassword(gerarSenha());
+            sendPasswordEmail(usuario.getUsername(), usuario.getNome(), usuario.getPassword());
+            // TODO fazer uma validação para usuario 'Em Validação' mas que venha com senha.
         }
 
         try {
@@ -128,4 +138,24 @@ public class ProfissionalService {
             return ResponseEntity.notFound().build();
         }
     }
+
+    private static final String CARACTERES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:?";
+
+    public static String gerarSenha() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder senha = new StringBuilder(8);
+
+        for (int i = 0; i < 8; i++) {
+            int index = random.nextInt(CARACTERES.length());
+            senha.append(CARACTERES.charAt(index));
+        }
+        return senha.toString();
+    }
+
+    private void sendPasswordEmail(String email, String name, String password) {
+        String subject = "Sua nova senha";
+        String body = "Olá " + name + ",\n\nSua nova senha é: " + password;
+        emailService.sendEmail(email, subject, body);
+    }
+
 }
