@@ -31,12 +31,12 @@ public class EspecialidadeService {
     private CustomExceptionHandler customExceptionHandler;
 
     public List<Especialidade> listarEspecialidades() {
-        return especialidadeRepository.findAll();
+        return especialidadeRepository.findAllByOrderByNome();
     }
 
     public ResponseEntity<?> buscarEspecialidades(Map<String, String> parametros) {
         if (parametros.isEmpty()) {
-            return ResponseEntity.ok().body(especialidadeRepository.findAll());
+            return ResponseEntity.ok().body(especialidadeRepository.findAllByOrderByNome());
         }
         if (parametros.containsKey("id")) {
             return ResponseEntity.ok().body(especialidadeRepository.findAllByIdEspecialidade(parametros.get("id")));

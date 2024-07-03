@@ -57,7 +57,7 @@ public class AlaService {
     public Optional<Ala> findByNome(String nome) {
         return alaRepository.findByNome(nome);
     }
-    public List<Ala> getAllAlasOrderedByName() {
+    public List<Ala> listarAlas() {
         return alaRepository.findAllByOrderByNome();
     }
     public List<Ala> getAllAlas() {

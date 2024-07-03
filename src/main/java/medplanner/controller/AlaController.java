@@ -50,7 +50,7 @@ public class AlaController {
 
     @GetMapping("/listar")
     public List<Ala> listarAlas() {
-        return alaService.getAllAlasOrderedByName();
+        return alaService.listarAlas();
     }
 
     @GetMapping("/buscar/{id}")
