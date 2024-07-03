@@ -16,5 +16,5 @@ public interface EspecialidadeRepository extends JpaRepository<Especialidade, Lo
 
     List<Especialidade> findBySiglaStartingWith(String sigla);
 
-
+    List<Especialidade> findAllByOrderByNome();
 }
