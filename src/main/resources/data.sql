@@ -54,13 +54,13 @@ INSERT INTO medplanner.recursos (id_sala, descricao, nome_recurso) VALUES
 -- Inserção de dados na tabela sala
 INSERT INTO medplanner.sala (nome_sala, situacao, id_ala, andar) VALUES
    
-    ("Consultório médico 2", "A", 1, 1),
-    ("Consultório médico 3", "A", 2, 1),
-    ("Consultório médico 4", "A", 2, 2),
-    ("Consultório médico 5", "A", 3, 1),
-    ("Consultório médico 6", "A", 3, 2),
-    ("Consultório médico 7", "A", 4, 1),
-    ("Consultório médico 8", "A", 4, 2);
+    ("Sala 2", "A", 1, 1),
+    ("Sala 3", "A", 2, 1),
+    ("Sala 4", "A", 2, 2),
+    ("Sala 5", "A", 3, 1),
+    ("Sala 6", "A", 3, 2),
+    ("Sala 7", "A", 4, 1),
+    ("Sala 8", "A", 4, 2);
 
 -- Inserção de dados na tabela locacao
 INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sala, id_ala) VALUES

@@ -91,9 +91,9 @@ public class ProfissionalService {
                 errors.add("CRM já existe.");
             }
 
-            if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
-                errors.add("CPF já existe.");
-            }
+            // if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
+            // errors.add("CPF já existe.");
+            // }
         }
 
         if (result.hasErrors()) {

@@ -25,9 +25,9 @@ import lombok.Setter;
 public class Profissional extends Usuario {
 
     @Column
-    @NotNull(message = "O CRM é obrigatório")
+    // @NotNull(message = "O CRM é obrigatório")
     @NotEmpty(message = "O CRM é obrigatório")
-    @Size(min = 6, max = 6, message = "O CRM deve ter exatamente 6 caracteres")
+    // @Size(min = 6, max = 6, message = "O CRM deve ter exatamente 6 caracteres")
     private String numCrm;
 
     @Column
