@@ -58,8 +58,16 @@ public class ProfissionalService {
                 return Collections.emptyList();
             }
         }
+        List<Profissional> allUsuarios = profissionalRepository.findAll();
+        List<Profissional> usuariosAtivos = new ArrayList<>(); // Initialize the list properly
+        for (Profissional u : allUsuarios) {
+            if (!"I".equals(u.getSituacao())) { // Use .equals to compare strings
+                usuariosAtivos.add(u);
+            }
+        }
 
-        return profissionalRepository.findAll();
+        return usuariosAtivos;
+        // return profissionalRepository.findAll();
     }
 
     public ResponseEntity<?> buscarProfissionais(Map<String, String> parametros) {
@@ -139,6 +147,7 @@ public class ProfissionalService {
 
     public ResponseEntity<String> deletarProfissional(Long id, UserDetails userDetails) {
         if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Apenas usuários com cargo de ADMINISTRADOR podem excluir profissionais.");
         }
@@ -146,8 +155,15 @@ public class ProfissionalService {
         Profissional profissional = profissionalRepository.findById(id).orElse(null);
 
         if (profissional != null) {
-            profissionalRepository.delete(profissional);
-            return ResponseEntity.ok("Profissional deletado com sucesso");
+            // o profissional nao pode ser deletato, apenas desativado e seus dados
+            // sensiveis devem ser apagados
+            profissional.setSituacao("I");
+            profissional.setUsername("");
+            profissional.setCpf("");
+            profissionalRepository.save(profissional);
+
+            // profissionalRepository.delete(profissional);
+            return ResponseEntity.ok("Profissional desativado com sucesso");
         } else {
             return ResponseEntity.notFound().build();
         }

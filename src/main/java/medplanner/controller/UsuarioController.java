@@ -64,14 +64,31 @@ public class UsuarioController {
 
     @RequestMapping("/listar")
     public List<Usuario> listarUsuario() {
-        return usuarioRepository.findAll();
+        List<Usuario> allUsuarios = usuarioRepository.findAll();
+        List<Usuario> usuariosAtivos = new ArrayList<>(); // Initialize the list properly
+        for (Usuario u : allUsuarios) {
+            if (!"I".equals(u.getSituacao())) { // Use .equals to compare strings
+                usuariosAtivos.add(u);
+            }
+        }
+
+        return usuariosAtivos;
     }
 
     @GetMapping("/buscar")
     public ResponseEntity buscarUsuario(@RequestParam Map<String, String> parametros) {
         if (parametros.isEmpty()) {
-            return ResponseEntity.ok().body(usuarioRepository.findAll());
+            List<Usuario> allUsuarios = usuarioRepository.findAll();
+            List<Usuario> usuariosAtivos = new ArrayList<>(); // Initialize the list properly
+            for (Usuario u : allUsuarios) {
+                if (!"I".equals(u.getSituacao())) { // Use .equals to compare strings
+                    usuariosAtivos.add(u);
+                }
+            }
+
+            return ResponseEntity.ok().body(usuariosAtivos);
         }
+
         if (parametros.get("id") != null) {
             return ResponseEntity.ok().body(usuarioRepository.findById(Long.parseLong(parametros.get("id"))));
         }
@@ -127,6 +144,7 @@ public class UsuarioController {
     public ResponseEntity<String> deletarUsuario(@PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
         if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ADMINISTRADOR"))) {
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Apenas usuários com cargo de ADMINISTRADOR podem excluir registros.");
         }

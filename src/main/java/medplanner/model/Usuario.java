@@ -59,8 +59,9 @@ public class Usuario implements UserDetails {
 
     @Column()
     @NotNull(message = "O CPF é obrigatório")
-    @NotEmpty(message = "O CPF é obrigatório")
-    @Size(min = 11, max = 11, message = "O CPF deve ter exatamente 11 caracteres")
+    // @NotEmpty(message = "O CPF é obrigatório")
+    // @Size(min = 11, max = 11, message = "O CPF deve ter exatamente 11
+    // caracteres")
     private String cpf;
 
     @Enumerated(EnumType.STRING)
