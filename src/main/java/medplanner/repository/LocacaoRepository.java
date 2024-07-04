@@ -1,18 +1,19 @@
 package medplanner.repository;
 
-import medplanner.model.Locacao;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Date;
+import medplanner.model.Locacao;
 
 @Repository
 public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
 
-    @Query("select count(l) > 0 from Locacao l where l.horaInicio <= :horaFinal and l.horaFinal >= :horaInicio and l.sala.id = :idsala and l.dia = :dia")
+    @Query("select count(l) > 0 from Locacao l where l.horaInicio < :horaFinal and l.horaFinal > :horaInicio and l.sala.id = :idsala and l.dia = :dia")
     boolean existeDataHoraMarcadaNaSala(Long idsala, LocalDateTime horaInicio, LocalDateTime horaFinal, Date dia);
 
     @Query("SELECT l FROM Locacao l WHERE l.sala.idSala = :salaId AND l.horaInicio >= :dataInicio AND l.horaFinal <= :dataFim")
