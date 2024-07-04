@@ -252,17 +252,20 @@ public class UsuarioController {
     }
 
     @PostMapping("/esqueciSenha")
-    public ResponseEntity<String> esqueciSenha(@RequestBody String email) {
+    public ResponseEntity<String> esqueciSenha(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
         Usuario usuario = usuarioRepository.buscarPorEmail(email).orElse(null);
         if (usuario != null) {
             String senhaAleatoria = gerarSenha();
             String passwordCriptografada = new BCryptPasswordEncoder().encode(senhaAleatoria);
             usuario.setPassword(passwordCriptografada);
+            usuarioRepository.save(usuario);
             sendPasswordEmail(usuario.getUsername(), usuario.getNome(), senhaAleatoria);
+            return ResponseEntity.ok("Envio realizado para: " + email);
         } else {
-            ResponseEntity.badRequest().body("Não existe usuario para este e-mail no sistema");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    "O e-mail informado não possui cadastro no sistema! Entre em contato com o administrador para verificar.");
         }
-        return ResponseEntity.ok("Envio realizado para: " + email);
     }
 
 }

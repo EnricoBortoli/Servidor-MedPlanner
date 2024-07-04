@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import medplanner.exception.CustomExceptionHandler;
+import medplanner.model.Ala;
 import medplanner.model.Sala;
+import medplanner.services.AlaService;
 import medplanner.services.SalaService;
 
 @RestController
@@ -33,6 +35,9 @@ public class SalaController {
 
     @Autowired
     private SalaService salaService;
+
+    @Autowired
+    private AlaService alaService;
 
     @Autowired
     private CustomExceptionHandler customExceptionHandler;
@@ -99,6 +104,11 @@ public class SalaController {
             Map<String, List<String>> errorResponse = new HashMap<>();
             errorResponse.put("errors", errors);
             return ResponseEntity.badRequest().body(errorResponse);
+        }
+
+        Ala ala = alaService.getAlaById(sala.getAla().getIdAla()).orElse(null);
+        if (ala == null || !"A".equals(ala.getSituacao())) {
+            return ResponseEntity.badRequest().body("A Ala selecionada está inativa!");
         }
 
         try {

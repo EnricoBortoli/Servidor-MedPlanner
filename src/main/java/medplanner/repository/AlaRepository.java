@@ -9,6 +9,10 @@ import java.util.Optional;
 public interface AlaRepository extends JpaRepository<Ala, Long> {
 
     Optional<Ala> findByNome(String nome);
+
     Optional<Ala> findBySigla(String sigla);
+
     List<Ala> findAllByOrderByNome();
+
+    List<Ala> findBySituacao(String situacao);
 }
