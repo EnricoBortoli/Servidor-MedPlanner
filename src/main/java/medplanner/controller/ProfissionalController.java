@@ -27,8 +27,8 @@ public class ProfissionalController {
     private medplanner.services.ProfissionalService profissionalService;
 
     @GetMapping("/listar")
-    public List<Profissional> listarProfissionais() {
-        return profissionalService.listarProfissionais();
+    public List<Profissional> listarProfissionais(@AuthenticationPrincipal UserDetails userDetails) {
+        return profissionalService.listarProfissionais(userDetails);
     }
 
     @GetMapping("/buscar")

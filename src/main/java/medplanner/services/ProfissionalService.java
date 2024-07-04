@@ -2,6 +2,7 @@ package medplanner.services;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,20 @@ public class ProfissionalService {
     @Autowired
     private EmailService emailService;
 
-    public List<Profissional> listarProfissionais() {
+    public List<Profissional> listarProfissionais(UserDetails userDetails) {
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("MEDICO"))) {
+            Optional<Usuario> optionalUsuario = usuarioRepository.buscarPorEmail(userDetails.getUsername());
+
+            if (optionalUsuario.isPresent()) {
+                Usuario usuario = optionalUsuario.get();
+                Profissional profissional = (Profissional) usuario;
+                List<Profissional> usuarioList = Collections.singletonList(profissional);
+                return usuarioList;
+            } else {
+                return Collections.emptyList();
+            }
+        }
+
         return profissionalRepository.findAll();
     }
 
