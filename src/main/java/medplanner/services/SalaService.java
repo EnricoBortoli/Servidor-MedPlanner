@@ -67,4 +67,13 @@ public class SalaService {
   public void deletarSala(Long idSala) {
     salaRepository.deleteById(idSala);
   }
+
+  public void atualizarSituacaoSalas(Long idAla, String situacao) {
+    List<Sala> salas = salaRepository.findByAla(idAla);
+    for (Sala sala : salas) {
+      sala.setSituacao(situacao);
+    }
+    salaRepository.saveAll(salas);
+  }
+
 }

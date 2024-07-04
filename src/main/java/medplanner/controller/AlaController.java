@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import medplanner.model.Ala;
 import medplanner.services.AlaService;
+import medplanner.services.SalaService;
 
 @RestController
 @RequestMapping("/ala")
@@ -24,6 +25,9 @@ public class AlaController {
 
     @Autowired
     private AlaService alaService;
+
+    @Autowired
+    private SalaService salaService;
 
     @PostMapping("/salvar")
     public ResponseEntity<?> salvarAla(@Valid @RequestBody Ala alaDetails, BindingResult bindingResult) {
@@ -41,6 +45,10 @@ public class AlaController {
             if (ala.isPresent()) {
                 Ala alaToUpdate = ala.get();
                 Ala updatedAla = alaService.updateAla(alaDetails, alaToUpdate);
+
+                // Atualizar a situação das salas associadas
+                salaService.atualizarSituacaoSalas(updatedAla.getIdAla(), updatedAla.getSituacao());
+
                 return ResponseEntity.ok(updatedAla);
             } else {
                 return ResponseEntity.notFound().build();
@@ -62,6 +70,7 @@ public class AlaController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @GetMapping("/buscar/nome/{nome}")
     public ResponseEntity<Ala> buscarAlaByNome(@PathVariable String nome) {
         Optional<Ala> ala = alaService.findByNome(nome);
@@ -70,6 +79,12 @@ public class AlaController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/buscar/situacao/{situacao}")
+    public ResponseEntity<List<Ala>> buscarAlaPorSituacao(@PathVariable String situacao) {
+        List<Ala> alas = alaService.findBySituacao(situacao);
+        return ResponseEntity.ok(alas);
     }
 
     @DeleteMapping("/deletar/{id}")
