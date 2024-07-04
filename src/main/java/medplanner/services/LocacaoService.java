@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +38,8 @@ public class LocacaoService {
 
         if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
                 locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
-            throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+            throw new IllegalArgumentException(
+                    "Atenção! Já está registrado uma locação para a sala, data e horário informados!");
         }
 
         Locacao locacao = new Locacao();
@@ -81,9 +81,11 @@ public class LocacaoService {
 
         Locacao locacao = locacaoOptional.get();
 
-        if (locacaoRepository.existeDataHoraMarcadaNaSala(locacaoDetails.getSala(), locacaoDetails.getHoraInicio(),
+        if (locacaoRepository.existeDataHoraMarcadaNaSalaEditar(locacaoDetails.getIdLocacao(), locacaoDetails.getSala(),
+                locacaoDetails.getHoraInicio(),
                 locacaoDetails.getHoraFinal(), locacaoDetails.getDia())) {
-            throw new IllegalArgumentException("Atenção! Já está registrado uma locação para a sala, data e horário informados!");
+            throw new IllegalArgumentException(
+                    "Atenção! Já está registrado uma locação para a sala, data e horário informados!");
         }
         Usuario usuario = usuarioRepository.findById(idMedico)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
@@ -126,7 +128,8 @@ public class LocacaoService {
         Date hoje = new Date();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMINISTRADOR"));
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMINISTRADOR"));
 
         if (!isAdmin && locacao.getDia().before(hoje)) {
             throw new IllegalArgumentException("Apenas administradores podem deletar locações de datas anteriores.");

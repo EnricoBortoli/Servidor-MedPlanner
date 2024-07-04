@@ -16,6 +16,11 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
     @Query("select count(l) > 0 from Locacao l where l.horaInicio < :horaFinal and l.horaFinal > :horaInicio and l.sala.id = :idsala and l.dia = :dia")
     boolean existeDataHoraMarcadaNaSala(Long idsala, LocalDateTime horaInicio, LocalDateTime horaFinal, Date dia);
 
+    @Query("select count(l) > 0 from Locacao l where l.id != :idAtual and l.horaInicio < :horaFinal and l.horaFinal > :horaInicio and l.sala.id = :idsala and l.dia = :dia")
+    boolean existeDataHoraMarcadaNaSalaEditar(Long idAtual, Long idsala, LocalDateTime horaInicio,
+            LocalDateTime horaFinal,
+            Date dia);
+
     @Query("SELECT l FROM Locacao l WHERE l.sala.idSala = :salaId AND l.horaInicio >= :dataInicio AND l.horaFinal <= :dataFim")
     List<Locacao> findBySalaIdAndPeriodo(Long salaId, LocalDateTime dataInicio, LocalDateTime dataFim);
 
