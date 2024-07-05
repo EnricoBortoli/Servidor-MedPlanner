@@ -108,6 +108,7 @@ public class LocacaoService {
     }
 
     public Optional<Locacao> buscarLocacaoById(Long id) {
+        
         return locacaoRepository.findById(id);
     }
 

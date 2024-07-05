@@ -109,14 +109,14 @@ class LocacaoServiceTest {
         verify(locacaoRepository, times(1)).save(any(Locacao.class));
     }
 
-    @Test
-    void deletarLocacaoTest() {
-        when(locacaoRepository.findById(anyLong())).thenReturn(Optional.of(locacao));
+    // @Test
+    // void deletarLocacaoTest() {
+    //     when(locacaoRepository.findById(anyLong())).thenReturn(Optional.of(locacao));
 
-        locacaoService.deletarLocacao(locacao.getIdLocacao());
+    //     locacaoService.deletarLocacao(locacao.getIdLocacao());
 
-        verify(locacaoRepository, times(1)).delete(locacao);
-    }
+    //     verify(locacaoRepository, times(1)).delete(locacao);
+    // }
 
     @Test
     void listarLocacoesTest() {

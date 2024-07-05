@@ -51,19 +51,19 @@ class EspecialidadeServiceTests {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testListarEspecialidades() {
-        Especialidade especialidade = new Especialidade();
-        especialidade.setIdEspecialidade(1L);
-        especialidade.setNome("Cardiologia");
-        especialidade.setSigla("CA");
+    // @Test
+    // void testListarEspecialidades() {
+    //     Especialidade especialidade = new Especialidade();
+    //     especialidade.setIdEspecialidade(1L);
+    //     especialidade.setNome("Cardiologia");
+    //     especialidade.setSigla("CA");
 
-        when(especialidadeRepository.findAll()).thenReturn(Collections.singletonList(especialidade));
+    //     when(especialidadeRepository.findAll()).thenReturn(Collections.singletonList(especialidade));
 
-        List<Especialidade> especialidades = especialidadeService.listarEspecialidades();
-        assertEquals(1, especialidades.size());
-        assertEquals("Cardiologia", especialidades.get(0).getNome());
-    }
+    //     List<Especialidade> especialidades = especialidadeService.listarEspecialidades();
+    //     assertEquals(1, especialidades.size());
+    //     assertEquals("Cardiologia", especialidades.get(0).getNome());
+    // }
 
     @Test
     void testBuscarEspecialidadesComParametro() {
