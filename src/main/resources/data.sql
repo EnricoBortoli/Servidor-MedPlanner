@@ -1,6 +1,7 @@
 
 -- Inserção de especialidades médicas no banco de dados
 INSERT INTO medplanner.especialidade (nome, sigla) VALUES 
+    ("Geral", "GR"),
     ("Cardiologia", "CD"),
     ("Neurologia", "NR"),
     ("Pediatria", "PD"),
@@ -25,20 +26,20 @@ INSERT INTO medplanner.usuario (nome, cpf, username, password, cargo, situacao) 
 -- Inserção de dados na tabela profissional
 -- Assumindo que os IDs de especialidade são conhecidos e correspondentes
 INSERT INTO medplanner.profissional (id_usuario, num_Crm, uf_Crm, id_especialidade) VALUES
-    (2, "12345", "SP", 1), -- João Silva, Cardiologia
+    (2, "12345", "SP", 1), -- Bruno Silva, Cardiologia
     (3, "67890", "RJ", 2), -- Maria Oliveira, Neurologia
     (4, "54321", "MG", 6); -- Carlos Pereira, Ortopedia
 
 
 -- Inserção de dados na tabela ala
 INSERT INTO medplanner.ala (nome, sigla, situacao) VALUES
-    ("Ala Norte", "AN", "A");
+    ("Triagem", "AT", "A");
 INSERT INTO medplanner.ala (nome, sigla, situacao) VALUES
-    ("Ala Sul", "AS", "A");
+    ("Cardiologia", "AC", "A");
 INSERT INTO medplanner.ala (nome, sigla, situacao) VALUES
-    ("Ala Leste", "AL", "A");
+    ("Pediatria", "AP", "A");
 INSERT INTO medplanner.ala (nome, sigla, situacao) VALUES
-    ("Ala Oeste", "AO", "A");
+    ("Ginecologia", "AG", "A");
 
 
 
@@ -76,12 +77,20 @@ INSERT INTO medplanner.locacao (hora_inicio, dia, hora_final, id_usuario, id_sal
 
 -- Inserção de dados na tabela recursos
 INSERT INTO medplanner.recursos (id_sala, descricao, nome_recurso) VALUES
-    (1, "Maca de aço inoxidável tamanho grande", "Maca"),
-    (2, "Esfigmomanômetro", "Equipamento Médico"),
-    (3, "Estetoscópio", "Equipamento Médico"),
-    (4, "Eletrocardiógrafo", "Equipamento Médico"),
-    (5, "Ultrassom", "Equipamento Médico"),
-    (6, "Raio-X", "Equipamento Médico"),
-    (7, "Monitor Cardíaco", "Equipamento Médico"),
-    (8, "Desfibrilador", "Equipamento Médico");
+    (1, "Esfigmomanômetro", "Equipamento Médico"),
+    (1, "Estetoscópio", "Equipamento Médico"),
+    (2, "Estetoscópio", "Equipamento Médico"),
+    (2, "Baçança", "Equipamento Médico"),
+    (3, "Eletrocardiógrafo", "Equipamento Médico"),
+    (3, "Monitor Holter", "Equipamento Médico"),
+    (4, "Ecocardiograma", "Equipamento Médico"),
+    (4, "Ergometria", "Equipamento Médico"),
+    (5, "Estetoscópio Pediátrico", "Equipamento Médico"),
+    (5, "Balança Pediátrica", "Equipamento Médico"),
+    (6, "Monitor Multiparamétrico", "Equipamento Médico"),
+    (6, "Nebulizador", "Equipamento Médico"),
+    (7, "Maca Ginecológica", "Maca"),
+    (7, "Ultrassom", "Equipamento Médico"),
+    (8, "Colposcópio", "Maca"),
+    (8, "Maca Ginecológica", "Maca");
 
