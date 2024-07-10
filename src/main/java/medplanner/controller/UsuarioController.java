@@ -261,7 +261,10 @@ public ResponseEntity<?> alterarSenha(@RequestBody Map<String, String> senhas,
     public ResponseEntity<?> excluirConta(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails instanceof Usuario) {
             Usuario usuario = (Usuario) userDetails;
-            usuarioRepository.delete(usuario);
+            usuario.setSituacao("I");
+            usuario.setUsername("");
+            usuario.setCpf("");
+            usuarioRepository.save(usuario);
             return ResponseEntity.ok("Conta excluída com sucesso!");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado!");
