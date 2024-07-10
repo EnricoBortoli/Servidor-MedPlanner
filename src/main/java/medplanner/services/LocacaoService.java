@@ -126,13 +126,13 @@ public class LocacaoService {
             throw new IllegalArgumentException("Locação não encontrada!");
         }
         Locacao locacao = locacaoOptional.get();
-        Date hoje = new Date();
+        LocalDateTime agora = LocalDateTime.now();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMINISTRADOR"));
 
-        if (!isAdmin && locacao.getDia().before(hoje)) {
+        if (!isAdmin && locacao.getHoraInicio().isBefore(agora)) {
             throw new IllegalArgumentException("Apenas administradores podem deletar locações de datas anteriores.");
         }
 
