@@ -112,11 +112,17 @@ public class UsuarioController {
         }
         if (usuario.getIdUsuario() == null) {
             if (usuarioRepository.findByUsername(usuario.getUsername()) != null) {
-                errors.add("Usuário já existe.");
+                errors.add("Este e-mail está cadastrado para outro usuário.");
             }
-            // if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
-            // errors.add("CPF já existe.");
-            // }
+            if (usuarioRepository.findByCPF(usuario.getCpf()) != null) {
+                errors.add("Este cpf está cadastrado para outro usuário.");
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            Map<String, List<String>> errorResponse = new HashMap<>();
+            errorResponse.put("errors", errors);
+            return ResponseEntity.badRequest().body(errorResponse);
         }
 
         if (usuario.getSituacao().equals("E")/* && usuario.getPassword() == null */) {
@@ -124,12 +130,6 @@ public class UsuarioController {
             String passwordCriptografada = new BCryptPasswordEncoder().encode(senhaAleatoria);
             usuario.setPassword(passwordCriptografada);
             sendPasswordEmail(usuario.getUsername(), usuario.getNome(), senhaAleatoria);
-        }
-
-        if (!errors.isEmpty()) {
-            Map<String, List<String>> errorResponse = new HashMap<>();
-            errorResponse.put("errors", errors);
-            return ResponseEntity.badRequest().body(errorResponse);
         }
 
         try {
